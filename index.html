@@ -27,9 +27,17 @@
     <!-- Timer Cards -->
     <div class="space-y-6 mb-8">
       <template x-for="(timer, index) in timers" :key="timer.id">
-        <div :class="`p-6 rounded-2xl shadow-lg transition-all ${getColorClass(timer.color, 'bg')}`">
-          <!-- Timer Header -->
-          <div class="flex justify-between items-center mb-4">
+        <div :class="`p-6 rounded-2xl shadow-lg transition-all ${getColorClass(timer.color, 'bg')} relative`">
+          <!-- Close Button (X in corner) - Repositioned -->
+          <button 
+            @click="removeTimer(index)"
+            class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-colors text-lg"
+            aria-label="Remove timer">
+            ×
+          </button>
+          
+          <!-- Timer Header - Added top padding for separation from X button -->
+          <div class="flex justify-between items-center mb-4 pt-4">
             <input 
               type="text" 
               x-model="timer.name" 
@@ -38,8 +46,8 @@
               :placeholder="`Timer ${index + 1}`"
             />
             
-            <!-- Color Selector -->
-            <div class="flex space-x-3">
+            <!-- Color Selector - Moved slightly away from right edge -->
+            <div class="flex space-x-3 mr-6">
               <template x-for="color in colors" :key="color">
                 <button 
                   @click="timer.color = color; saveTimers()"
@@ -97,15 +105,6 @@
               </button>
             </div>
           </div>
-          
-          <!-- Remove Timer -->
-          <div class="mt-4 text-right">
-            <button 
-              @click="removeTimer(index)"
-              class="text-sm text-slate-600 hover:text-slate-900 underline">
-              Remove Timer
-            </button>
-          </div>
         </div>
       </template>
     </div>
@@ -125,7 +124,6 @@
       return {
         timers: [],
         colors: ['pink', 'blue', 'green', 'purple', 'yellow'],
-        // Add this ticker property to force UI updates
         ticker: 0,
         
         init() {
@@ -204,15 +202,16 @@
         },
         
         addTimer() {
+          const now = Date.now();
           const newTimer = {
-            id: Date.now().toString(),
+            id: now.toString(),
             name: '',
-            mode: 'countdown',
-            duration: 25, // Default 25 min pomodoro
+            mode: 'stopwatch', // Changed from 'countdown' to 'stopwatch'
+            duration: 25,
             color: this.colors[Math.floor(Math.random() * this.colors.length)],
-            isRunning: false,
+            isRunning: true,  // Auto-start the timer
             elapsed: 0,
-            lastUpdated: null
+            lastUpdated: now  // Set the lastUpdated to now for auto-start
           };
           
           this.timers.push(newTimer);
