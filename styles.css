@@ -1,0 +1,150 @@
+:root {
+  /* Base colors */
+  --color-blue: #93c5fd;
+  --color-green: #86efac;
+  --color-purple: #c4b5fd; 
+  --color-pink: #f9a8d4;
+  --color-yellow: #fde68a;
+  
+  /* Text colors */
+  --text-dark: #1e293b;
+  --text-light: #f8fafc;
+  
+  /* UI colors */
+  --bg-app-from: #dbeafe;
+  --bg-app-to: #bfdbfe;
+  --bg-button: rgba(255, 255, 255, 0.4);
+  --bg-button-hover: rgba(255, 255, 255, 0.6);
+  
+  /* Add button */
+  --add-button-bg: #e0e7ff;
+  --add-button-hover: #c7d2fe;
+  --add-button-text: #3730a3;
+}
+
+/* Timer backgrounds with subtle gradients */
+.timer-bg-blue { background: linear-gradient(145deg, var(--color-blue), #bae6fd); }
+.timer-bg-green { background: linear-gradient(145deg, var(--color-green), #a7f3d0); }
+.timer-bg-purple { background: linear-gradient(145deg, var(--color-purple), #ddd6fe); }
+.timer-bg-pink { background: linear-gradient(145deg, var(--color-pink), #fbcfe8); }
+.timer-bg-yellow { background: linear-gradient(145deg, var(--color-yellow), #fef3c7); }
+
+/* Progress bars */
+.progress-bg-blue { background: linear-gradient(to bottom, rgba(147, 197, 253, 0.8), rgba(96, 165, 250, 0.8)); }
+.progress-bg-green { background: linear-gradient(to bottom, rgba(134, 239, 172, 0.8), rgba(74, 222, 128, 0.8)); }
+.progress-bg-purple { background: linear-gradient(to bottom, rgba(196, 181, 253, 0.8), rgba(167, 139, 250, 0.8)); }
+.progress-bg-pink { background: linear-gradient(to bottom, rgba(249, 168, 212, 0.8), rgba(244, 114, 182, 0.8)); }
+.progress-bg-yellow { background: linear-gradient(to bottom, rgba(253, 230, 138, 0.8), rgba(252, 211, 77, 0.8)); }
+
+/* Button styles */
+.timer-button {
+  background-color: var(--bg-button);
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.timer-button:hover {
+  background-color: var(--bg-button-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.timer-button:active {
+  transform: translateY(0);
+}
+
+/* Color selectors */
+.color-selector-blue { background-color: var(--color-blue); box-shadow: 0 2px 4px rgba(147, 197, 253, 0.5); }
+.color-selector-green { background-color: var(--color-green); box-shadow: 0 2px 4px rgba(134, 239, 172, 0.5); }
+.color-selector-purple { background-color: var(--color-purple); box-shadow: 0 2px 4px rgba(196, 181, 253, 0.5); }
+.color-selector-pink { background-color: var(--color-pink); box-shadow: 0 2px 4px rgba(249, 168, 212, 0.5); }
+.color-selector-yellow { background-color: var(--color-yellow); box-shadow: 0 2px 4px rgba(253, 230, 138, 0.5); }
+
+/* Add button */
+.add-button {
+  background-color: var(--add-button-bg);
+  color: var(--add-button-text);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.add-button:hover {
+  background-color: var(--add-button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+
+.add-button:active {
+  transform: translateY(0);
+}
+
+/* App background */
+.app-background {
+  background: linear-gradient(to bottom right, var(--bg-app-from), var(--bg-app-to));
+}
+
+/* Timer card enhancements */
+.timer-card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.timer-card:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+}
+
+/* Timer display */
+.timer-display {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  letter-spacing: 0.5px;
+}
+
+/* Active timer animation */
+@keyframes subtle-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.9; }
+  100% { opacity: 1; }
+}
+
+.timer-running {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* Timer name input enhancement */
+.timer-name-input {
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.timer-name-input:focus {
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+  outline: none;
+}
+
+/* Countdown number input */
+.duration-input {
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: all 0.2s ease;
+}
+
+.duration-input:focus {
+  border-color: rgba(255,255,255,0.8);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+/* Add/remove timer transitions */
+.timer-transition-enter-active, 
+.timer-transition-leave-active {
+  transition: all 0.4s ease;
+}
+
+.timer-transition-enter-from, 
+.timer-transition-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}

@@ -1,416 +1,443 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TimerThing</title>
-  
-  <!-- Alpine.js and Tailwind CSS via CDN (no build step) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts - Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-  </style>
-</head>
-<body class="bg-gradient-to-br from-blue-100 to-blue-200 min-h-screen p-6">
-  <!-- Change from max-w-lg to max-w-4xl to accommodate the wider layout -->
-  <div x-data="timerApp()" class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-semibold text-center mb-8 text-slate-800">TimerThing</h1>
-    
-    <!-- Timer Cards - Convert to grid layout -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      <template x-for="(timer, index) in timers" :key="timer.id">
-        <div :class="`p-4 rounded-2xl shadow-lg transition-all ${getColorClass(timer.color, 'bg')} relative overflow-hidden`">
-          <!-- Progress Bar - only for countdown timers -->
-          <template x-if="timer.mode === 'countdown' && timer.isRunning">
-            <div 
-              class="absolute inset-0 transition-transform duration-500"
-              :class="getColorClass(timer.color, 'progress-bg')"
-              :style="`transform: translateY(${ticker, getProgressPercentage(timer)}%)`">
-            </div>
-          </template>
-          
-          <!-- Content wrapper with z-index -->
-          <div class="relative z-10">
-            <!-- Close Button (X in corner) - Moved closer to edge -->
-            <button 
-              @click="removeTimer(index)"
-              class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-colors text-lg"
-              aria-label="Remove timer">
-              ×
-            </button>
-            
-            <!-- Timer Header - Centered with larger name -->
-            <div class="flex flex-col items-center mb-2">
-              <input 
-                type="text" 
-                x-model="timer.name" 
-                @change="saveTimers()"
-                class="bg-transparent font-medium text-2xl text-center focus:outline-none border-b border-transparent focus:border-slate-400 px-2 py-1 max-w-full"
-                :placeholder="`Timer ${index + 1}`"
-              />
-              
-              <!-- Color Selector - Centered -->
-              <div class="flex space-x-2 mt-2">
-                <template x-for="color in colors" :key="color">
-                  <button 
-                    @click="timer.color = color; saveTimers()"
-                    :class="`w-5 h-5 rounded-full hover:scale-110 transition-transform ${getColorClass(color, 'bg')} ${timer.color === color ? 'ring-2 ring-slate-700 ring-offset-1' : ''}`"
-                    :aria-label="`Select ${color} color`">
-                  </button>
-                </template>
-              </div>
-            </div>
-            
-            <!-- Timer Display - Reduced padding -->
-            <div class="text-center py-3">
-              <div 
-                class="text-5xl font-mono font-semibold"
-                :class="{'animate-pulse': timer.isRunning}"
-                x-text="formatTime(timer)">
-              </div>
-            </div>
-            
-            <!-- Timer Controls - Reduced spacing -->
-            <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
-              <!-- Mode Toggle -->
-              <button 
-                @click="toggleMode(timer)"
-                :class="`px-3 py-1.5 rounded-xl text-sm ${getColorClass(timer.color, 'button')}`">
-                <span x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"></span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TimerThing</title>
+
+    <!-- Alpine.js and Tailwind CSS via CDN (no build step) -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS with color variables -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="app-background min-h-screen p-6">
+    <!-- Change from max-w-lg to max-w-4xl to accommodate the wider layout -->
+    <div x-data="timerApp()" class="max-w-4xl mx-auto">
+      <h1 class="text-3xl font-semibold text-center mb-8 text-slate-800">
+        TimerThing
+      </h1>
+
+      <!-- Timer Cards - Convert to grid layout -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <template x-for="(timer, index) in timers" :key="timer.id">
+          <div
+            :class="`p-5 rounded-2xl shadow-lg transition-all relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')}`"
+            x-transition:enter="timer-transition-enter-active"
+            x-transition:enter-start="timer-transition-enter-from"
+            x-transition:leave="timer-transition-leave-active"
+            x-transition:leave-end="timer-transition-leave-to"
+          >
+            <!-- Progress Bar - only for countdown timers -->
+            <template x-if="timer.mode === 'countdown' && timer.isRunning">
+              <div
+                class="absolute inset-0 transition-transform duration-500"
+                :class="getColorClass(timer.color, 'progress')"
+                :style="`transform: translateY(${ticker, getProgressPercentage(timer)}%)`"
+              ></div>
+            </template>
+
+            <!-- Content wrapper with z-index -->
+            <div class="relative z-10">
+              <!-- Close Button (X in corner) - Enhanced -->
+              <button
+                @click="removeTimer(index)"
+                class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-all hover:scale-110 text-lg"
+                aria-label="Remove timer"
+              >
+                ×
               </button>
-              
-              <!-- Countdown Duration (only for countdown mode) -->
-              <template x-if="timer.mode === 'countdown'">
-                <div class="flex items-center">
-                  <input 
-                    type="number" 
-                    x-model.number="timer.duration" 
-                    @change="updateDuration(timer)"
-                    class="w-14 bg-white/40 rounded-xl px-2 py-1.5 text-center focus:outline-none text-sm"
-                    min="1"
-                  />
-                  <span class="ml-1 text-sm">min</span>
+
+              <!-- Timer Header - Centered with larger name -->
+              <div class="flex flex-col items-center mb-3">
+                <input
+                  type="text"
+                  x-model="timer.name"
+                  @change="saveTimers()"
+                  class="bg-transparent font-medium text-2xl text-center timer-name-input px-2 py-1 max-w-full"
+                  :placeholder="`Timer ${index + 1}`"
+                />
+
+                <!-- Color Selector - Centered -->
+                <div class="flex space-x-3 mt-3">
+                  <template x-for="color in colors" :key="color">
+                    <button
+                      @click="timer.color = color; saveTimers()"
+                      :class="`w-6 h-6 rounded-full hover:scale-125 transition-all color-selector-${color} ${timer.color === color ? 'ring-2 ring-slate-700 ring-offset-2' : ''}`"
+                      :aria-label="`Select ${color} color`"
+                    ></button>
+                  </template>
                 </div>
-              </template>
-              
-              <!-- Main Controls -->
-              <div class="flex space-x-2">
-                <button 
-                  @click="toggleTimer(timer)" 
-                  :class="`px-3 py-1.5 rounded-xl text-sm font-medium ${getColorClass(timer.color, 'button')}`">
-                  <span x-text="timer.isRunning ? 'Pause' : 'Start'"></span>
+              </div>
+
+              <!-- Timer Display - Enhanced -->
+              <div class="text-center py-4">
+                <div
+                  class="text-5xl font-mono font-semibold timer-display"
+                  :class="{'timer-running': timer.isRunning}"
+                  x-text="formatTime(timer)"
+                ></div>
+              </div>
+
+              <!-- Timer Controls - Improved layout -->
+              <div
+                class="flex flex-wrap items-center justify-between gap-3 mt-3"
+              >
+                <!-- Mode Toggle -->
+                <button
+                  @click="toggleMode(timer)"
+                  class="timer-button px-3 py-2 rounded-xl text-sm"
+                >
+                  <span
+                    x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"
+                  ></span>
                 </button>
-                
-                <button 
-                  @click="resetTimer(timer)" 
-                  :class="`px-3 py-1.5 rounded-xl text-sm font-medium ${getColorClass(timer.color, 'button')}`">
-                  Reset
-                </button>
+
+                <!-- Countdown Duration (only for countdown mode) -->
+                <template x-if="timer.mode === 'countdown'">
+                  <div class="flex items-center">
+                    <input
+                      type="number"
+                      x-model.number="timer.duration"
+                      @change="updateDuration(timer)"
+                      class="w-14 duration-input rounded-xl px-2 py-1.5 text-center text-sm"
+                      min="1"
+                    />
+                    <span class="ml-1 text-sm">min</span>
+                  </div>
+                </template>
+
+                <!-- Main Controls -->
+                <div class="flex space-x-2">
+                  <button
+                    @click="toggleTimer(timer)"
+                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium"
+                  >
+                    <span x-text="timer.isRunning ? 'Pause' : 'Start'"></span>
+                  </button>
+
+                  <button
+                    @click="resetTimer(timer)"
+                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium"
+                  >
+                    Reset
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </template>
-    </div>
-    
-    <!-- Add Timer Button -->
-    <div class="text-center">
-      <button 
-        @click="addTimer()" 
-        class="px-6 py-3 rounded-xl font-medium text-lg transition-colors bg-indigo-100 hover:bg-indigo-200 text-indigo-800">
-        Add Timer
-      </button>
-    </div>
-  </div>
+        </template>
+      </div>
 
-  <script>
-    function timerApp() {
-      return {
-        timers: [],
-        colors: ['pink', 'blue', 'green', 'purple', 'yellow'],
-        ticker: 0,
-        
-        init() {
-          this.loadTimers();
-          this.startTimerUpdates();
-          
-          // Force UI updates every 500ms when timers are running
-          setInterval(() => {
-            if (this.timers.some(t => t.isRunning)) {
-              this.ticker++;
-            }
-          }, 500);
-          
-          // Handle page visibility changes
-          document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-              this.updateTimersOnResume();
-            }
-          });
-        },
-        
-        loadTimers() {
-          const savedTimers = localStorage.getItem('timers');
-          
-          if (savedTimers) {
-            try {
-              this.timers = JSON.parse(savedTimers);
-              this.updateTimersOnResume();
-            } catch (e) {
-              console.error("Error loading timers:", e);
-              this.timers = [];
-            }
-          }
-          
-          // Add a default timer if none exists
-          if (!this.timers.length) {
-            this.addTimer();
-          }
-        },
-        
-        updateTimersOnResume() {
-          const now = Date.now();
-          
-          this.timers.forEach(timer => {
-            if (timer.isRunning && timer.lastUpdated) {
-              // Calculate elapsed time while page was closed
-              const timePassed = now - timer.lastUpdated;
-              
-              if (timer.mode === 'countdown') {
-                // For countdown, check if timer should have completed
-                const durationMs = timer.duration * 60 * 1000;
-                timer.elapsed += timePassed;
-                
-                if (timer.elapsed >= durationMs) {
-                  timer.elapsed = durationMs;
-                  timer.isRunning = false;
-                  timer.lastUpdated = null;
-                  // Play notification sound on resume if timer finished
-                  this.playNotification();
-                } else {
-                  timer.lastUpdated = now;
-                }
-              } else {
-                // For stopwatch, just add the elapsed time
-                timer.elapsed += timePassed;
-                timer.lastUpdated = now;
+      <!-- Add Timer Button - Enhanced -->
+      <div class="text-center">
+        <button
+          @click="addTimer()"
+          class="add-button px-6 py-3 rounded-xl font-medium text-lg transition-all"
+        >
+          Add Timer
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function timerApp() {
+        return {
+          timers: [],
+          colors: ["pink", "blue", "green", "purple", "yellow"],
+          ticker: 0,
+
+          init() {
+            this.loadTimers();
+            this.startTimerUpdates();
+
+            // Force UI updates every 500ms when timers are running
+            setInterval(() => {
+              if (this.timers.some((t) => t.isRunning)) {
+                this.ticker++;
+              }
+            }, 500);
+
+            // Handle page visibility changes
+            document.addEventListener("visibilitychange", () => {
+              if (document.visibilityState === "visible") {
+                this.updateTimersOnResume();
+              }
+            });
+          },
+
+          loadTimers() {
+            const savedTimers = localStorage.getItem("timers");
+
+            if (savedTimers) {
+              try {
+                this.timers = JSON.parse(savedTimers);
+                this.updateTimersOnResume();
+              } catch (e) {
+                console.error("Error loading timers:", e);
+                this.timers = [];
               }
             }
-          });
-          
-          this.saveTimers();
-        },
-        
-        saveTimers() {
-          localStorage.setItem('timers', JSON.stringify(this.timers));
-        },
-        
-        addTimer() {
-          const now = Date.now();
-          const newTimer = {
-            id: now.toString(),
-            name: '',
-            mode: 'stopwatch', // Changed from 'countdown' to 'stopwatch'
-            duration: 25,
-            color: this.colors[Math.floor(Math.random() * this.colors.length)],
-            isRunning: true,  // Auto-start the timer
-            elapsed: 0,
-            lastUpdated: now  // Set the lastUpdated to now for auto-start
-          };
-          
-          this.timers.push(newTimer);
-          this.saveTimers();
-        },
-        
-        removeTimer(index) {
-          this.timers.splice(index, 1);
-          this.saveTimers();
-        },
-        
-        toggleMode(timer) {
-          timer.mode = timer.mode === 'countdown' ? 'stopwatch' : 'countdown';
-          timer.isRunning = false;
-          timer.elapsed = 0;
-          timer.lastUpdated = null;
-          this.saveTimers();
-        },
-        
-        toggleTimer(timer) {
-          const now = Date.now();
-          
-          if (timer.isRunning) {
-            // Pause
-            if (timer.lastUpdated) {
-              timer.elapsed += (now - timer.lastUpdated);
+
+            // Add a default timer if none exists
+            if (!this.timers.length) {
+              this.addTimer();
             }
-            timer.isRunning = false;
-            timer.lastUpdated = null;
-          } else {
-            // Start
-            timer.isRunning = true;
-            timer.lastUpdated = now;
-          }
-          
-          this.saveTimers();
-        },
-        
-        resetTimer(timer) {
-          timer.isRunning = false;
-          timer.elapsed = 0;
-          timer.lastUpdated = null;
-          this.saveTimers();
-        },
-        
-        updateDuration(timer) {
-          // Ensure duration is at least 1 minute
-          if (timer.duration < 1) timer.duration = 1;
-          timer.elapsed = 0;
-          this.saveTimers();
-        },
-        
-        startTimerUpdates() {
-          // Update timers every second
-          setInterval(() => {
+          },
+
+          updateTimersOnResume() {
             const now = Date.now();
-            let needsSave = false;
-            
-            this.timers.forEach(timer => {
-              if (timer.isRunning) {
-                if (timer.mode === 'countdown') {
+
+            this.timers.forEach((timer) => {
+              if (timer.isRunning && timer.lastUpdated) {
+                // Calculate elapsed time while page was closed
+                const timePassed = now - timer.lastUpdated;
+
+                if (timer.mode === "countdown") {
+                  // For countdown, check if timer should have completed
                   const durationMs = timer.duration * 60 * 1000;
-                  const totalElapsed = timer.elapsed + (now - timer.lastUpdated);
-                  
-                  if (totalElapsed >= durationMs) {
-                    // Timer complete
+                  timer.elapsed += timePassed;
+
+                  if (timer.elapsed >= durationMs) {
                     timer.elapsed = durationMs;
                     timer.isRunning = false;
                     timer.lastUpdated = null;
+                    // Play notification sound on resume if timer finished
                     this.playNotification();
-                    needsSave = true;
+                  } else {
+                    timer.lastUpdated = now;
                   }
+                } else {
+                  // For stopwatch, just add the elapsed time
+                  timer.elapsed += timePassed;
+                  timer.lastUpdated = now;
                 }
               }
             });
-            
-            if (needsSave) {
-              this.saveTimers();
-            }
-          }, 1000);
-        },
-        
-        formatTime(timer) {
-          // Access the ticker to ensure this function gets re-evaluated
-          // when the ticker changes
-          this.ticker;
-          
-          let timeMs;
-          
-          if (timer.isRunning) {
-            const elapsed = timer.elapsed + (Date.now() - timer.lastUpdated);
-            
-            if (timer.mode === 'countdown') {
-              const durationMs = timer.duration * 60 * 1000;
-              timeMs = Math.max(0, durationMs - elapsed);
+
+            this.saveTimers();
+          },
+
+          saveTimers() {
+            localStorage.setItem("timers", JSON.stringify(this.timers));
+          },
+
+          addTimer() {
+            const now = Date.now();
+            const newTimer = {
+              id: now.toString(),
+              name: "",
+              mode: "stopwatch", // Changed from 'countdown' to 'stopwatch'
+              duration: 25,
+              color:
+                this.colors[Math.floor(Math.random() * this.colors.length)],
+              isRunning: true, // Auto-start the timer
+              elapsed: 0,
+              lastUpdated: now, // Set the lastUpdated to now for auto-start
+            };
+
+            this.timers.push(newTimer);
+            this.saveTimers();
+          },
+
+          removeTimer(index) {
+            this.timers.splice(index, 1);
+            this.saveTimers();
+          },
+
+          toggleMode(timer) {
+            timer.mode = timer.mode === "countdown" ? "stopwatch" : "countdown";
+            timer.isRunning = false;
+            timer.elapsed = 0;
+            timer.lastUpdated = null;
+            this.saveTimers();
+          },
+
+          toggleTimer(timer) {
+            const now = Date.now();
+
+            if (timer.isRunning) {
+              // Pause
+              if (timer.lastUpdated) {
+                timer.elapsed += now - timer.lastUpdated;
+              }
+              timer.isRunning = false;
+              timer.lastUpdated = null;
             } else {
-              timeMs = elapsed;
+              // Start
+              timer.isRunning = true;
+              timer.lastUpdated = now;
             }
-          } else {
-            if (timer.mode === 'countdown') {
-              const durationMs = timer.duration * 60 * 1000;
-              timeMs = Math.max(0, durationMs - timer.elapsed);
+
+            this.saveTimers();
+          },
+
+          resetTimer(timer) {
+            timer.isRunning = false;
+            timer.elapsed = 0;
+            timer.lastUpdated = null;
+            this.saveTimers();
+          },
+
+          updateDuration(timer) {
+            // Ensure duration is at least 1 minute
+            if (timer.duration < 1) timer.duration = 1;
+            timer.elapsed = 0;
+            this.saveTimers();
+          },
+
+          startTimerUpdates() {
+            // Update timers every second
+            setInterval(() => {
+              const now = Date.now();
+              let needsSave = false;
+
+              this.timers.forEach((timer) => {
+                if (timer.isRunning) {
+                  if (timer.mode === "countdown") {
+                    const durationMs = timer.duration * 60 * 1000;
+                    const totalElapsed =
+                      timer.elapsed + (now - timer.lastUpdated);
+
+                    if (totalElapsed >= durationMs) {
+                      // Timer complete
+                      timer.elapsed = durationMs;
+                      timer.isRunning = false;
+                      timer.lastUpdated = null;
+                      this.playNotification();
+                      needsSave = true;
+                    }
+                  }
+                }
+              });
+
+              if (needsSave) {
+                this.saveTimers();
+              }
+            }, 1000);
+          },
+
+          formatTime(timer) {
+            // Access the ticker to ensure this function gets re-evaluated
+            // when the ticker changes
+            this.ticker;
+
+            let timeMs;
+
+            if (timer.isRunning) {
+              const elapsed = timer.elapsed + (Date.now() - timer.lastUpdated);
+
+              if (timer.mode === "countdown") {
+                const durationMs = timer.duration * 60 * 1000;
+                timeMs = Math.max(0, durationMs - elapsed);
+              } else {
+                timeMs = elapsed;
+              }
             } else {
-              timeMs = timer.elapsed;
+              if (timer.mode === "countdown") {
+                const durationMs = timer.duration * 60 * 1000;
+                timeMs = Math.max(0, durationMs - timer.elapsed);
+              } else {
+                timeMs = timer.elapsed;
+              }
             }
-          }
-          
-          // Format the time as HH:MM:SS
-          const totalSeconds = Math.floor(timeMs / 1000);
-          const hours = Math.floor(totalSeconds / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const seconds = totalSeconds % 60;
-          
-          return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        },
-        
-        playNotification() {
-          try {
-            // Replace with an actual audio file later
-            const audio = new Audio('notification-sound.mp3');
-            audio.play();
-          } catch (e) {
-            console.error("Could not play notification sound:", e);
-          }
-        },
-        
-        getColorClass(color, type) {
-          const colorMap = {
-            'pink': {
-              'bg': 'bg-pink-100',
-              'button': 'bg-white/40 hover:bg-white/60 text-pink-800',
-              'ring': 'text-pink-500',
-              'ring-bg': 'text-pink-200/30',
-              'progress-bg': 'bg-gradient-to-b from-pink-200/80 to-pink-300/80'
-            },
-            'blue': {
-              'bg': 'bg-blue-100',
-              'button': 'bg-white/40 hover:bg-white/60 text-blue-800',
-              'ring': 'text-blue-500',
-              'ring-bg': 'text-blue-200/30',
-              'progress-bg': 'bg-gradient-to-b from-blue-200/80 to-blue-300/80'
-            },
-            'green': {
-              'bg': 'bg-green-100', 
-              'button': 'bg-white/40 hover:bg-white/60 text-green-800',
-              'ring': 'text-green-500',
-              'ring-bg': 'text-green-200/30',
-              'progress-bg': 'bg-gradient-to-b from-green-200/80 to-green-300/80'
-            },
-            'purple': {
-              'bg': 'bg-purple-100',
-              'button': 'bg-white/40 hover:bg-white/60 text-purple-800',
-              'ring': 'text-purple-500',
-              'ring-bg': 'text-purple-200/30',
-              'progress-bg': 'bg-gradient-to-b from-purple-200/80 to-purple-300/80'
-            },
-            'yellow': {
-              'bg': 'bg-yellow-100',
-              'button': 'bg-white/40 hover:bg-white/60 text-yellow-800',
-              'ring': 'text-yellow-500',
-              'ring-bg': 'text-yellow-200/30',
-              'progress-bg': 'bg-gradient-to-b from-yellow-200/80 to-yellow-300/80'
+
+            // Format the time as HH:MM:SS
+            const totalSeconds = Math.floor(timeMs / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            return `${hours.toString().padStart(2, "0")}:${minutes
+              .toString()
+              .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+          },
+
+          playNotification() {
+            try {
+              // Add a visual notification in addition to sound
+              const notificationDuration = 3000;
+
+              // Create notification element
+              const notification = document.createElement("div");
+              notification.className =
+                "fixed bottom-4 right-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-lg z-50 animate-bounce";
+              notification.innerHTML = "Timer completed!";
+
+              // Add to document
+              document.body.appendChild(notification);
+
+              // Play sound if available
+              try {
+                const audio = new Audio("notification-sound.mp3");
+                audio.play();
+              } catch (e) {
+                console.log("Could not play notification sound");
+              }
+
+              // Remove after duration
+              setTimeout(() => {
+                notification.classList.add("opacity-0");
+                notification.style.transition = "opacity 0.5s ease";
+
+                setTimeout(() => {
+                  document.body.removeChild(notification);
+                }, 500);
+              }, notificationDuration);
+            } catch (e) {
+              console.error("Error showing notification:", e);
             }
-          };
-          
-          return colorMap[color]?.[type] || 'bg-slate-100';
-        },
-        
-        getProgressPercentage(timer) {
-          if (timer.mode !== 'countdown') return 0;
-          
-          const durationMs = timer.duration * 60 * 1000;
-          let elapsed = timer.elapsed;
-          
-          if (timer.isRunning && timer.lastUpdated) {
-            elapsed += (Date.now() - timer.lastUpdated);
-          }
-          
-          // Calculate how much is remaining (0-100)
-          const remaining = Math.max(0, Math.min(100, (elapsed / durationMs) * 100));
-          
-          // Return negative percentage so it comes from the top
-          return -100 + remaining;
-        }
-      };
-    }
-  </script>
-</body>
+          },
+
+          getColorClass(color, type) {
+            if (type === "bg") {
+              return `timer-bg-${color}`;
+            }
+            if (type === "progress") {
+              return `progress-bg-${color}`;
+            }
+            return "";
+          },
+
+          getProgressPercentage(timer) {
+            if (timer.mode !== "countdown") return 0;
+
+            const durationMs = timer.duration * 60 * 1000;
+            let elapsed = timer.elapsed;
+
+            if (timer.isRunning && timer.lastUpdated) {
+              elapsed += Date.now() - timer.lastUpdated;
+            }
+
+            // Calculate how much is remaining (0-100)
+            const remaining = Math.max(
+              0,
+              Math.min(100, (elapsed / durationMs) * 100)
+            );
+
+            // Return negative percentage so it comes from the top
+            return -100 + remaining;
+          },
+        };
+      }
+    </script>
+  </body>
 </html>
