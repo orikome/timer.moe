@@ -28,7 +28,7 @@
     <!-- Timer Cards - Convert to grid layout -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <template x-for="(timer, index) in timers" :key="timer.id">
-        <div :class="`p-6 rounded-2xl shadow-lg transition-all ${getColorClass(timer.color, 'bg')} relative overflow-hidden`">
+        <div :class="`p-4 rounded-2xl shadow-lg transition-all ${getColorClass(timer.color, 'bg')} relative overflow-hidden`">
           <!-- Progress Bar - only for countdown timers -->
           <template x-if="timer.mode === 'countdown' && timer.isRunning">
             <div 
@@ -40,26 +40,26 @@
           
           <!-- Content wrapper with z-index -->
           <div class="relative z-10">
-            <!-- Close Button (X in corner) - Repositioned -->
+            <!-- Close Button (X in corner) - Moved closer to edge -->
             <button 
               @click="removeTimer(index)"
-              class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-colors text-lg"
+              class="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-colors text-lg"
               aria-label="Remove timer">
               ×
             </button>
             
-            <!-- Timer Header - Modified to be more responsive -->
-            <div class="flex flex-wrap justify-between items-center mb-4 pt-4">
+            <!-- Timer Header - Centered with larger name -->
+            <div class="flex flex-col items-center mb-2">
               <input 
                 type="text" 
                 x-model="timer.name" 
                 @change="saveTimers()"
-                class="bg-transparent font-medium text-xl focus:outline-none border-b border-transparent focus:border-slate-400 px-2 py-1 min-w-0 flex-grow mr-3"
+                class="bg-transparent font-medium text-2xl text-center focus:outline-none border-b border-transparent focus:border-slate-400 px-2 py-1 max-w-full"
                 :placeholder="`Timer ${index + 1}`"
               />
               
-              <!-- Color Selector - Added flex-shrink, reduced spacing -->
-              <div class="flex space-x-2 flex-shrink-0">
+              <!-- Color Selector - Centered -->
+              <div class="flex space-x-2 mt-2">
                 <template x-for="color in colors" :key="color">
                   <button 
                     @click="timer.color = color; saveTimers()"
@@ -70,8 +70,8 @@
               </div>
             </div>
             
-            <!-- Timer Display -->
-            <div class="text-center py-8">
+            <!-- Timer Display - Reduced padding -->
+            <div class="text-center py-3">
               <div 
                 class="text-5xl font-mono font-semibold"
                 :class="{'animate-pulse': timer.isRunning}"
@@ -79,12 +79,12 @@
               </div>
             </div>
             
-            <!-- Timer Controls -->
-            <div class="flex flex-wrap items-center justify-between gap-3">
+            <!-- Timer Controls - Reduced spacing -->
+            <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
               <!-- Mode Toggle -->
               <button 
                 @click="toggleMode(timer)"
-                :class="`px-4 py-2 rounded-xl text-base ${getColorClass(timer.color, 'button')}`">
+                :class="`px-3 py-1.5 rounded-xl text-sm ${getColorClass(timer.color, 'button')}`">
                 <span x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"></span>
               </button>
               
@@ -95,24 +95,24 @@
                     type="number" 
                     x-model.number="timer.duration" 
                     @change="updateDuration(timer)"
-                    class="w-16 bg-white/40 rounded-xl px-3 py-2 text-center focus:outline-none text-base"
+                    class="w-14 bg-white/40 rounded-xl px-2 py-1.5 text-center focus:outline-none text-sm"
                     min="1"
                   />
-                  <span class="ml-2 text-base">min</span>
+                  <span class="ml-1 text-sm">min</span>
                 </div>
               </template>
               
               <!-- Main Controls -->
-              <div class="flex space-x-3">
+              <div class="flex space-x-2">
                 <button 
                   @click="toggleTimer(timer)" 
-                  :class="`px-4 py-2 rounded-xl text-base font-medium ${getColorClass(timer.color, 'button')}`">
+                  :class="`px-3 py-1.5 rounded-xl text-sm font-medium ${getColorClass(timer.color, 'button')}`">
                   <span x-text="timer.isRunning ? 'Pause' : 'Start'"></span>
                 </button>
                 
                 <button 
                   @click="resetTimer(timer)" 
-                  :class="`px-4 py-2 rounded-xl text-base font-medium ${getColorClass(timer.color, 'button')}`">
+                  :class="`px-3 py-1.5 rounded-xl text-sm font-medium ${getColorClass(timer.color, 'button')}`">
                   Reset
                 </button>
               </div>
