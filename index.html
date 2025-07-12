@@ -20,6 +20,12 @@
       rel="stylesheet"
     />
 
+    <!-- Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
     <!-- Custom CSS with color variables -->
     <link rel="stylesheet" href="styles.css" />
 
@@ -60,13 +66,13 @@
 
             <!-- Content wrapper with z-index -->
             <div class="relative z-10">
-              <!-- Close Button (X in corner) -->
+              <!-- Close Button (X in corner) with Material Icon -->
               <button
                 @click="removeTimer(index)"
-                class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-all hover:scale-110 text-lg"
+                class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-all hover:scale-110"
                 aria-label="Remove timer"
               >
-                ×
+                <span class="material-icons md-18">close</span>
               </button>
 
               <!-- Timer Header - Centered with larger name -->
@@ -104,11 +110,15 @@
               <div
                 class="flex flex-wrap items-center justify-between gap-3 mt-3"
               >
-                <!-- Mode Toggle -->
+                <!-- Mode Toggle with icon -->
                 <button
                   @click="toggleMode(timer)"
-                  class="timer-button px-3 py-2 rounded-xl text-sm"
+                  class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
                 >
+                  <span
+                    class="material-icons md-20"
+                    x-text="timer.mode === 'countdown' ? 'timer' : 'timer_off'"
+                  ></span>
                   <span
                     x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"
                   ></span>
@@ -128,20 +138,26 @@
                   </div>
                 </template>
 
-                <!-- Main Controls -->
+                <!-- Main Controls with icons -->
                 <div class="flex space-x-2">
+                  <!-- Toggle button (Start/Pause) -->
                   <button
                     @click="toggleTimer(timer)"
-                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium"
+                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
+                    :class="{'bg-red-50 hover:bg-red-100': timer.isRunning, 'bg-green-50 hover:bg-green-100': !timer.isRunning}"
                   >
-                    <span x-text="timer.isRunning ? 'Pause' : 'Start'"></span>
+                    <span
+                      class="material-icons"
+                      x-text="timer.isRunning ? 'pause_circle' : 'play_circle'"
+                    ></span>
                   </button>
 
+                  <!-- Reset button -->
                   <button
                     @click="resetTimer(timer)"
-                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium"
+                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
                   >
-                    Reset
+                    <span class="material-icons">restart_alt</span>
                   </button>
                 </div>
               </div>
@@ -150,13 +166,14 @@
         </template>
       </div>
 
-      <!-- Add Timer Button - Enhanced -->
+      <!-- Add Timer Button with Icon -->
       <div class="text-center">
         <button
           @click="addTimer()"
-          class="add-button px-6 py-3 rounded-xl font-medium text-lg transition-all"
+          class="add-button px-6 py-3 rounded-xl font-medium text-lg transition-all icon-with-text"
         >
-          Add Timer
+          <span class="material-icons">add_circle</span>
+          <span>Add Timer</span>
         </button>
       </div>
     </div>

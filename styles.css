@@ -148,3 +148,16 @@
   opacity: 0;
   transform: scale(0.9);
 }
+
+/* Simplified Material Icons styling */
+.material-icons {
+  font-family: 'Material Icons';
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Only keep the size variations you actually use */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-20 { font-size: 20px; }
