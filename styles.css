@@ -150,6 +150,41 @@
   transform: scale(0.9);
 }
 
+.backdrop-transition-enter {
+  transition: opacity 0.3s ease;
+}
+
+.backdrop-transition-enter-start {
+  opacity: 0;
+}
+
+.backdrop-transition-leave {
+  transition: opacity 0.2s ease;
+}
+
+.backdrop-transition-leave-end {
+  opacity: 0;
+}
+
+/* Modal content transitions */
+.modal-transition-enter-active, 
+.modal-transition-leave-active {
+  transition: all 0.3s ease;
+}
+
+.modal-transition-enter-from, 
+.modal-transition-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Icon with text layout */
+.icon-with-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Simplified Material Icons styling */
 .material-icons {
   font-family: 'Material Icons';

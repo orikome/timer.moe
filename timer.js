@@ -1,8 +1,9 @@
 function timerApp() {
   return {
     timers: [],
-    colors: ["pink", "blue", "green", "purple", "yellow"],
+    colors: ['blue', 'green', 'purple', 'pink', 'yellow'],
     ticker: 0,
+    showAbout: false,
 
     init() {
       this.loadTimers();

@@ -41,9 +41,23 @@
   <body class="app-background min-h-screen p-6">
     <!-- Change from max-w-lg to max-w-4xl to accommodate the wider layout -->
     <div x-data="timerApp()" class="max-w-4xl mx-auto">
-      <h1 class="text-3xl font-semibold text-center mb-8 text-slate-800">
-        timer.moe
-      </h1>
+      <!-- Header with About button -->
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex-1"></div>
+        <h1 class="text-3xl font-semibold text-center text-slate-800">
+          timer.moe
+        </h1>
+        <div class="flex-1 flex justify-end">
+          <button
+            @click="showAbout = true"
+            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+            aria-label="About timer.moe"
+          >
+            <span class="material-icons md-20">info</span>
+            <span>About</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Timer Cards - Convert to grid layout -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -170,11 +184,93 @@
       <div class="text-center">
         <button
           @click="addTimer()"
-          class="add-button px-6 py-3 rounded-xl font-medium text-lg transition-all icon-with-text"
+          class="add-button px-6 py-3 rounded-xl font-medium text-lg transition-all inline-flex items-center justify-center"
         >
-          <span class="material-icons">add_circle</span>
+          <span class="material-icons mr-2">add_circle</span>
           <span>Add Timer</span>
         </button>
+      </div>
+
+      <!-- About Modal -->
+      <div
+        x-show="showAbout"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        x-cloak
+      >
+        <!-- Backdrop -->
+        <div
+          @click="showAbout = false"
+          class="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          x-transition:enter="backdrop-transition-enter"
+          x-transition:enter-start="backdrop-transition-enter-start"
+          x-transition:leave="backdrop-transition-leave"
+          x-transition:leave-end="backdrop-transition-leave-end"
+        ></div>
+
+        <!-- Modal Content -->
+        <div
+          class="relative max-w-md w-full bg-white rounded-2xl p-6 shadow-xl timer-card"
+          x-transition:enter="transition ease-out duration-300"
+          x-transition:enter-start="opacity-0 transform scale-95"
+          x-transition:enter-end="opacity-100 transform scale-100"
+          x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="opacity-100 transform scale-100"
+          x-transition:leave-end="opacity-0 transform scale-95"
+        >
+          <!-- Close button -->
+          <button
+            @click="showAbout = false"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all"
+            aria-label="Close about"
+          >
+            <span class="material-icons md-18">close</span>
+          </button>
+
+          <!-- About content -->
+          <div class="pr-8">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-4">
+              About timer.moe
+            </h2>
+
+            <div class="space-y-3 text-slate-600">
+              <p>Better timers for focus.</p>
+
+              <div>
+                <h3 class="font-medium text-slate-800 mb-1">Features:</h3>
+                <ul class="text-sm space-y-1 ml-4">
+                  <li>• Multiple simultaneous timers</li>
+                  <li>• Countdown (pomodoro) and stopwatch modes</li>
+                  <li>• Timers persist between sessions</li>
+                </ul>
+              </div>
+
+              <p class="text-sm pt-2">Built with Alpine.js and Tailwind CSS</p>
+
+              <!-- Support and Source Links -->
+              <div class="flex flex-wrap gap-3 pt-3">
+                <a
+                  href="https://ko-fi.com/orikome"
+                  target="_blank"
+                  rel="noopener"
+                  class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-xl timer-button transition-all hover:scale-105"
+                >
+                  <span class="material-icons md-18 mr-1">favorite</span>
+                  <span>Support on Ko-fi</span>
+                </a>
+
+                <a
+                  href="https://github.com/orikome/timer.moe"
+                  target="_blank"
+                  rel="noopener"
+                  class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-xl timer-button transition-all hover:scale-105"
+                >
+                  <span class="material-icons md-18 mr-1">code</span>
+                  <span>View Source</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </body>
