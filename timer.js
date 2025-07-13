@@ -14,6 +14,8 @@ function timerApp() {
         if (this.timers.some((t) => t.isRunning)) {
           this.ticker++;
         }
+        // Update title whenever ticker updates
+        this.updateTitle();
       }, 500);
 
       // Handle page visibility changes
@@ -76,8 +78,19 @@ function timerApp() {
       this.saveTimers();
     },
 
+    updateTitle() {
+      if (this.timers.length > 0) {
+        const firstTimer = this.timers[0];
+        const timeDisplay = this.formatTime(firstTimer);
+        document.title = `timer.moe | ${timeDisplay}`;
+      } else {
+        document.title = 'timer.moe';
+      }
+    },
+
     saveTimers() {
       localStorage.setItem("timers", JSON.stringify(this.timers));
+      this.updateTitle(); // Update title when timers change
     },
 
     addTimer() {
@@ -170,6 +183,9 @@ function timerApp() {
         if (needsSave) {
           this.saveTimers();
         }
+        
+        // Update title every second
+        this.updateTitle();
       }, 1000);
     },
 
