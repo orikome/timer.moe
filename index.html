@@ -43,22 +43,19 @@
     <div x-data="timerApp()" class="max-w-4xl mx-auto">
       <!-- Header with About button -->
       <div class="flex items-center justify-between mb-8">
-        <div class="flex-1"></div>
-        <h1 class="text-4xl font-bold text-center">
+        <h1 class="text-4xl font-bold">
           <span class="text-gray-800">timer</span
           ><span class="text-base align-middle" style="color: #f9a8d4">❤︎</span
           ><span class="text-gray-800">moe</span>
         </h1>
-        <div class="flex-1 flex justify-end">
-          <button
-            @click="showAbout = true"
-            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
-            aria-label="About timer.moe"
-          >
-            <span class="material-icons md-20">info</span>
-            <span>About</span>
-          </button>
-        </div>
+        <button
+          @click="showAbout = true"
+          class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+          aria-label="About timer.moe"
+        >
+          <span class="material-icons md-20">info</span>
+          <span>About</span>
+        </button>
       </div>
 
       <!-- Timer Cards - Convert to grid layout -->
