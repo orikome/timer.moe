@@ -4,9 +4,11 @@ function timerApp() {
     colors: ['blue', 'green', 'purple', 'pink', 'yellow'],
     ticker: 0,
     showAbout: false,
+    isDarkMode: false, // Add theme state
 
     init() {
       this.loadTimers();
+      this.loadThemePreference(); // Load theme preference
       this.startTimerUpdates();
 
       // Force UI updates every 500ms when timers are running
@@ -26,6 +28,34 @@ function timerApp() {
       });
     },
 
+    // Add theme toggle function
+    toggleTheme() {
+      this.isDarkMode = !this.isDarkMode;
+      this.applyTheme();
+      localStorage.setItem("isDarkMode", this.isDarkMode);
+    },
+
+    // Load theme preference from localStorage
+    loadThemePreference() {
+      const savedTheme = localStorage.getItem("isDarkMode");
+      if (savedTheme !== null) {
+        this.isDarkMode = savedTheme === "true";
+      } else {
+        // If no saved preference, use system preference
+        this.isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      this.applyTheme();
+    },
+
+    // Apply theme to document
+    applyTheme() {
+      if (this.isDarkMode) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    },
+    
     loadTimers() {
       const savedTimers = localStorage.getItem("timers");
 

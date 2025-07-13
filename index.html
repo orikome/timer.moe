@@ -12,6 +12,13 @@
     ></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Tailwind configuration for dark mode -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -38,24 +45,39 @@
       }
     </style>
   </head>
-  <body class="app-background min-h-screen p-6">
+  <body class="app-background dark:bg-gray-900 min-h-screen p-6">
     <!-- Change from max-w-lg to max-w-4xl to accommodate the wider layout -->
     <div x-data="timerApp()" class="max-w-4xl mx-auto">
       <!-- Header with About button -->
       <div class="flex items-center justify-between mb-8">
         <h1 class="text-4xl font-bold">
-          <span class="text-gray-800">timer</span
+          <span class="text-gray-800 dark:text-gray-100">timer</span
           ><span class="text-base align-middle" style="color: #f9a8d4">❤︎</span
-          ><span class="text-gray-800">moe</span>
+          ><span class="text-gray-800 dark:text-gray-100">moe</span>
         </h1>
-        <button
-          @click="showAbout = true"
-          class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
-          aria-label="About timer.moe"
-        >
-          <span class="material-icons md-20">info</span>
-          <span>About</span>
-        </button>
+        <div class="flex space-x-3">
+          <!-- Theme toggle button -->
+          <button
+            @click="toggleTheme()"
+            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text dark:bg-gray-700 dark:text-gray-100"
+            aria-label="Toggle theme"
+          >
+            <span
+              class="material-icons md-20"
+              x-text="isDarkMode ? 'light_mode' : 'dark_mode'"
+            ></span>
+            <span x-text="isDarkMode ? 'Light' : 'Dark'"></span>
+          </button>
+          <!-- About button -->
+          <button
+            @click="showAbout = true"
+            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text dark:bg-gray-700 dark:text-gray-100"
+            aria-label="About timer.moe"
+          >
+            <span class="material-icons md-20">info</span>
+            <span>About</span>
+          </button>
+        </div>
       </div>
 
       <!-- Timer Cards - Convert to grid layout -->
@@ -208,7 +230,7 @@
 
         <!-- Modal Content -->
         <div
-          class="relative max-w-md w-full bg-white rounded-2xl p-6 shadow-xl timer-card"
+          class="relative max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl timer-card"
           x-transition:enter="transition ease-out duration-300"
           x-transition:enter-start="opacity-0 transform scale-95"
           x-transition:enter-end="opacity-100 transform scale-100"
@@ -219,7 +241,7 @@
           <!-- Close button -->
           <button
             @click="showAbout = false"
-            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 transition-all"
             aria-label="Close about"
           >
             <span class="material-icons md-18">close</span>
@@ -227,11 +249,13 @@
 
           <!-- About content -->
           <div class="pr-8">
-            <h2 class="text-2xl font-semibold text-slate-800 mb-4">
+            <h2
+              class="text-2xl font-semibold text-slate-800 dark:text-gray-100 mb-4"
+            >
               About timer.moe
             </h2>
 
-            <div class="space-y-3 text-slate-600">
+            <div class="space-y-3 text-slate-600 dark:text-gray-300">
               <p>Better timers for focus.</p>
 
               <div>
