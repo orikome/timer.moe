@@ -5,11 +5,20 @@ function timerApp() {
     ticker: 0,
     showAbout: false,
     isDarkMode: false, // Add theme state
+    
+    // Firebase auth state
+    user: null,
+    showSyncModal: false,
+    loginEmail: '',
+    loginPassword: '',
+    registerMode: false,
+    authError: '',
 
     init() {
       this.loadTimers();
       this.loadThemePreference(); // Load theme preference
       this.startTimerUpdates();
+      this.initFirebaseAuth(); // Initialize Firebase auth listener
 
       // Force UI updates every 500ms when timers are running
       setInterval(() => {
@@ -26,6 +35,179 @@ function timerApp() {
           this.updateTimersOnResume();
         }
       });
+    },
+
+    // Initialize Firebase auth state listener
+    initFirebaseAuth() {
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().onAuthStateChanged((user) => {
+          this.user = user;
+          if (user) {
+            // User is signed in, load timers from Firestore
+            this.loadTimersFromFirestore();
+          } else {
+            // User is signed out, use localStorage
+            this.loadTimers();
+          }
+        });
+      }
+    },
+
+    // Firebase Auth Methods
+    async loginWithGoogle() {
+      try {
+        this.authError = '';
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebase.auth().signInWithPopup(provider);
+        this.showSyncModal = false;
+        this.clearLoginForm();
+      } catch (error) {
+        this.authError = this.getAuthErrorMessage(error);
+      }
+    },
+
+    async loginWithEmail() {
+      try {
+        this.authError = '';
+        await firebase.auth().signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
+        this.showSyncModal = false;
+        this.clearLoginForm();
+      } catch (error) {
+        this.authError = this.getAuthErrorMessage(error);
+      }
+    },
+
+    async registerWithEmail() {
+      try {
+        this.authError = '';
+        await firebase.auth().createUserWithEmailAndPassword(this.loginEmail, this.loginPassword);
+        this.showSyncModal = false;
+        this.clearLoginForm();
+      } catch (error) {
+        this.authError = this.getAuthErrorMessage(error);
+      }
+    },
+
+    async logout() {
+      try {
+        await firebase.auth().signOut();
+        this.showSyncModal = false;
+        // Clear any synced data and reload from localStorage
+        this.loadTimers();
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+    },
+
+    async deleteAccount() {
+      try {
+        const user = firebase.auth().currentUser;
+        if (user) {
+          // Delete user data from Firestore
+          await firebase.firestore().collection('userTimers').doc(user.uid).delete();
+          // Delete the user account
+          await user.delete();
+          this.showSyncModal = false;
+          // Clear local timers and reload defaults
+          this.timers = [];
+          localStorage.removeItem('timers');
+          this.addTimer();
+        }
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        this.authError = 'Failed to delete account. You may need to sign in again first.';
+      }
+    },
+
+    clearLoginForm() {
+      this.loginEmail = '';
+      this.loginPassword = '';
+      this.registerMode = false;
+      this.authError = '';
+    },
+
+    getAuthErrorMessage(error) {
+      switch (error.code) {
+        case 'auth/user-not-found':
+          return 'No account found with this email address.';
+        case 'auth/wrong-password':
+          return 'Incorrect password.';
+        case 'auth/email-already-in-use':
+          return 'An account with this email already exists.';
+        case 'auth/weak-password':
+          return 'Password should be at least 6 characters.';
+        case 'auth/invalid-email':
+          return 'Please enter a valid email address.';
+        case 'auth/popup-closed-by-user':
+          return 'Sign-in popup was closed. Please try again.';
+        default:
+          return error.message || 'An error occurred during authentication.';
+      }
+    },
+
+    // Firestore sync methods
+    async loadTimersFromFirestore() {
+      if (!this.user) return;
+
+      try {
+        const doc = await firebase.firestore().collection('userTimers').doc(this.user.uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          if (data.timers) {
+            this.timers = data.timers;
+            this.updateTimersOnResume();
+          } else {
+            // No timers in Firestore, migrate from localStorage if any exist
+            this.migrateFromLocalStorage();
+          }
+        } else {
+          // No document exists, migrate from localStorage if any exist
+          this.migrateFromLocalStorage();
+        }
+      } catch (error) {
+        console.error('Error loading timers from Firestore:', error);
+        // Fallback to localStorage
+        this.loadTimers();
+      }
+    },
+
+    async saveTimersToFirestore() {
+      if (!this.user) {
+        // User not logged in, save to localStorage
+        this.saveTimers();
+        return;
+      }
+
+      try {
+        await firebase.firestore().collection('userTimers').doc(this.user.uid).set({
+          timers: this.timers,
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        this.updateTitle(); // Update title when timers change
+      } catch (error) {
+        console.error('Error saving timers to Firestore:', error);
+        // Fallback to localStorage
+        this.saveTimers();
+      }
+    },
+
+    async migrateFromLocalStorage() {
+      const savedTimers = localStorage.getItem("timers");
+      if (savedTimers) {
+        try {
+          this.timers = JSON.parse(savedTimers);
+          this.updateTimersOnResume();
+          // Save to Firestore and clear localStorage
+          await this.saveTimersToFirestore();
+          localStorage.removeItem("timers");
+        } catch (e) {
+          console.error("Error migrating timers:", e);
+          this.addTimer();
+        }
+      } else {
+        // No local timers, add default
+        this.addTimer();
+      }
     },
 
     // Add theme toggle function
@@ -119,8 +301,14 @@ function timerApp() {
     },
 
     saveTimers() {
-      localStorage.setItem("timers", JSON.stringify(this.timers));
-      this.updateTitle(); // Update title when timers change
+      if (this.user) {
+        // User is logged in, save to Firestore
+        this.saveTimersToFirestore();
+      } else {
+        // User not logged in, save to localStorage
+        localStorage.setItem("timers", JSON.stringify(this.timers));
+        this.updateTitle(); // Update title when timers change
+      }
     },
 
     addTimer() {
