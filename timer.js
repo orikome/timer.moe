@@ -4,7 +4,7 @@ function timerApp() {
     colors: ['blue', 'green', 'purple', 'pink', 'yellow'],
     ticker: 0,
     showAbout: false,
-    isDarkMode: false, // Add theme state
+    isDarkMode: false,
     
     // Firebase auth state
     user: null,
@@ -13,23 +13,24 @@ function timerApp() {
     loginPassword: '',
     registerMode: false,
     authError: '',
+    lastSyncTimestamp: 0, // Track when data was last synced
 
     init() {
+      // Always load from localStorage first for immediate display
       this.loadTimers();
-      this.loadThemePreference(); // Load theme preference
+      this.loadThemePreference();
       this.startTimerUpdates();
-      this.initFirebaseAuth(); // Initialize Firebase auth listener
+      
+      // Then initialize Firebase auth listener
+      this.initFirebaseAuth();
 
-      // Force UI updates every 500ms when timers are running
       setInterval(() => {
         if (this.timers.some((t) => t.isRunning)) {
           this.ticker++;
         }
-        // Update title whenever ticker updates
         this.updateTitle();
       }, 500);
 
-      // Handle page visibility changes
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {
           this.updateTimersOnResume();
@@ -37,23 +38,19 @@ function timerApp() {
       });
     },
 
-    // Initialize Firebase auth state listener
     initFirebaseAuth() {
       if (typeof firebase !== 'undefined' && firebase.auth) {
         firebase.auth().onAuthStateChanged((user) => {
           this.user = user;
           if (user) {
-            // User is signed in, load timers from Firestore
+            // User is signed in, check for newer data in Firestore
+            // but don't replace localStorage data unless newer
             this.loadTimersFromFirestore();
-          } else {
-            // User is signed out, use localStorage
-            this.loadTimers();
           }
         });
       }
     },
 
-    // Firebase Auth Methods
     async loginWithGoogle() {
       try {
         this.authError = '';
@@ -153,61 +150,91 @@ function timerApp() {
         const doc = await firebase.firestore().collection('userTimers').doc(this.user.uid).get();
         if (doc.exists) {
           const data = doc.data();
-          if (data.timers) {
-            this.timers = data.timers;
-            this.updateTimersOnResume();
+          if (data.timers && data.timestamp) {
+            // Only update if Firestore data is newer than local data
+            if (!this.lastSyncTimestamp || data.timestamp > this.lastSyncTimestamp) {
+              console.log("Using newer Firestore data");
+              this.timers = data.timers;
+              this.lastSyncTimestamp = data.timestamp;
+              
+              // Update localStorage with the newer Firestore data
+              this.saveToLocalStorage();
+              this.updateTimersOnResume();
+            } else {
+              console.log("Local data is newer, keeping it");
+            }
           } else {
-            // No timers in Firestore, migrate from localStorage if any exist
+            // No timers or timestamp in Firestore, migrate from localStorage
             this.migrateFromLocalStorage();
           }
         } else {
-          // No document exists, migrate from localStorage if any exist
+          // No document exists, migrate from localStorage
           this.migrateFromLocalStorage();
         }
       } catch (error) {
         console.error('Error loading timers from Firestore:', error);
-        // Fallback to localStorage
-        this.loadTimers();
       }
     },
 
-    async saveTimersToFirestore() {
-      if (!this.user) {
-        // User not logged in, save to localStorage
-        this.saveTimers();
-        return;
-      }
-
-      try {
-        await firebase.firestore().collection('userTimers').doc(this.user.uid).set({
-          timers: this.timers,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        this.updateTitle(); // Update title when timers change
-      } catch (error) {
-        console.error('Error saving timers to Firestore:', error);
-        // Fallback to localStorage
-        this.saveTimers();
-      }
+    saveToLocalStorage() {
+      // Save timers with timestamp to localStorage
+      localStorage.setItem("timers", JSON.stringify(this.timers));
+      localStorage.setItem("lastSyncTimestamp", this.lastSyncTimestamp);
     },
-
-    async migrateFromLocalStorage() {
+    
+    loadTimers() {
       const savedTimers = localStorage.getItem("timers");
+      this.lastSyncTimestamp = parseInt(localStorage.getItem("lastSyncTimestamp")) || 0;
+
       if (savedTimers) {
         try {
           this.timers = JSON.parse(savedTimers);
           this.updateTimersOnResume();
-          // Save to Firestore and clear localStorage
-          await this.saveTimersToFirestore();
-          localStorage.removeItem("timers");
         } catch (e) {
-          console.error("Error migrating timers:", e);
-          this.addTimer();
+          console.error("Error loading timers:", e);
+          this.timers = [];
         }
-      } else {
-        // No local timers, add default
+      }
+
+      // Add a default timer if none exists
+      if (!this.timers.length) {
         this.addTimer();
       }
+    },
+
+    async saveTimers() {
+      // Update timestamp
+      this.lastSyncTimestamp = Date.now();
+      
+      // Always save to localStorage for immediate access next load
+      this.saveToLocalStorage();
+      
+      // If user is logged in, also save to Firestore
+      if (this.user) {
+        await this.saveTimersToFirestore();
+      }
+      
+      this.updateTitle();
+    },
+
+    async saveTimersToFirestore() {
+      if (!this.user) return;
+
+      try {
+        await firebase.firestore().collection('userTimers').doc(this.user.uid).set({
+          timers: this.timers,
+          timestamp: this.lastSyncTimestamp,
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (error) {
+        console.error('Error saving timers to Firestore:', error);
+      }
+    },
+
+    async migrateFromLocalStorage() {
+      // When creating first Firestore record, use the current timestamp
+      this.lastSyncTimestamp = Date.now();
+      await this.saveTimersToFirestore();
     },
 
     // Add theme toggle function
@@ -238,25 +265,6 @@ function timerApp() {
       }
     },
     
-    loadTimers() {
-      const savedTimers = localStorage.getItem("timers");
-
-      if (savedTimers) {
-        try {
-          this.timers = JSON.parse(savedTimers);
-          this.updateTimersOnResume();
-        } catch (e) {
-          console.error("Error loading timers:", e);
-          this.timers = [];
-        }
-      }
-
-      // Add a default timer if none exists
-      if (!this.timers.length) {
-        this.addTimer();
-      }
-    },
-
     updateTimersOnResume() {
       const now = Date.now();
 
@@ -297,17 +305,6 @@ function timerApp() {
         document.title = `timer.moe | ${timeDisplay}`;
       } else {
         document.title = 'timer.moe';
-      }
-    },
-
-    saveTimers() {
-      if (this.user) {
-        // User is logged in, save to Firestore
-        this.saveTimersToFirestore();
-      } else {
-        // User not logged in, save to localStorage
-        localStorage.setItem("timers", JSON.stringify(this.timers));
-        this.updateTitle(); // Update title when timers change
       }
     },
 
