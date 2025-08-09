@@ -43,8 +43,7 @@ function timerApp() {
         firebase.auth().onAuthStateChanged((user) => {
           this.user = user;
           if (user) {
-            // User is signed in, check for newer data in Firestore
-            // but don't replace localStorage data unless newer
+            // User is signed in, load data from Firestore as the source of truth
             this.loadTimersFromFirestore();
           }
         });
@@ -151,24 +150,21 @@ function timerApp() {
         if (doc.exists) {
           const data = doc.data();
           if (data.timers && data.timestamp) {
-            // Only update if Firestore data is newer than local data
-            if (!this.lastSyncTimestamp || data.timestamp > this.lastSyncTimestamp) {
-              console.log("Using newer Firestore data");
-              this.timers = data.timers;
-              this.lastSyncTimestamp = data.timestamp;
-              
-              // Update localStorage with the newer Firestore data
-              this.saveToLocalStorage();
-              this.updateTimersOnResume();
-            } else {
-              console.log("Local data is newer, keeping it");
-            }
+            console.log("Loading data from Firebase (source of truth)");
+            this.timers = data.timers;
+            this.lastSyncTimestamp = data.timestamp;
+            
+            // Update localStorage with Firebase data
+            this.saveToLocalStorage();
+            this.updateTimersOnResume();
           } else {
             // No timers or timestamp in Firestore, migrate from localStorage
+            console.log("No timers found in Firebase, migrating from local storage");
             this.migrateFromLocalStorage();
           }
         } else {
           // No document exists, migrate from localStorage
+          console.log("No document found in Firebase, migrating from local storage");
           this.migrateFromLocalStorage();
         }
       } catch (error) {
@@ -209,7 +205,7 @@ function timerApp() {
       // Always save to localStorage for immediate access next load
       this.saveToLocalStorage();
       
-      // If user is logged in, also save to Firestore
+      // If user is logged in, also save to Firestore (the source of truth)
       if (this.user) {
         await this.saveTimersToFirestore();
       }
