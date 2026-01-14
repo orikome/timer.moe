@@ -70,6 +70,8 @@ jobs:
           if [ -f README.md ]; then cp README.md build/; fi
           # Copy any other assets (images, fonts, etc.)
           if [ -f screenshot.jpg ]; then cp screenshot.jpg build/; fi
+          # Copy SVG files
+          find . -maxdepth 1 -name "*.svg" -exec cp {} build/ \;
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
