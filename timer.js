@@ -14,6 +14,7 @@ function timerApp() {
     registerMode: false,
     authError: '',
     lastSyncTimestamp: 0, // Track when data was last synced
+    isSyncing: false, // Track when we're loading data from Firestore
 
     init() {
       // Always load from localStorage first for immediate display
@@ -146,6 +147,7 @@ function timerApp() {
       if (!this.user) return;
 
       try {
+        this.isSyncing = true;
         const doc = await firebase.firestore().collection('userTimers').doc(this.user.uid).get();
         if (doc.exists) {
           const data = doc.data();
@@ -160,15 +162,17 @@ function timerApp() {
           } else {
             // No timers or timestamp in Firestore, migrate from localStorage
             console.log("No timers found in Firebase, migrating from local storage");
-            this.migrateFromLocalStorage();
+            await this.migrateFromLocalStorage();
           }
         } else {
           // No document exists, migrate from localStorage
           console.log("No document found in Firebase, migrating from local storage");
-          this.migrateFromLocalStorage();
+          await this.migrateFromLocalStorage();
         }
       } catch (error) {
         console.error('Error loading timers from Firestore:', error);
+      } finally {
+        this.isSyncing = false;
       }
     },
 
