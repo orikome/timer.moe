@@ -1,7 +1,7 @@
 function timerApp() {
   return {
     timers: [],
-    colors: ['blue', 'green', 'purple', 'pink', 'yellow'],
+    colors: ['blue', 'green', 'purple', 'pink', 'yellow', 'orange', 'red', 'teal', 'indigo', 'lime'],
     ticker: 0,
     showAbout: false,
     isDarkMode: false,
@@ -459,7 +459,7 @@ function timerApp() {
         // Create notification element
         const notification = document.createElement("div");
         notification.className =
-          "fixed bottom-4 right-4 bg-purple-500 text-white py-3 px-5 rounded-2xl shadow-lg z-50 animate-bounce text-sm font-medium";
+          "fixed bottom-4 right-4 bg-indigo-600 dark:bg-indigo-500 text-white py-3 px-5 rounded-2xl shadow-lg z-50 animate-bounce text-sm font-medium";
         notification.innerHTML = "Timer completed! \u2728";
 
         // Add to document

@@ -1,62 +1,87 @@
 :root {
-  /* Pastel timer colors */
-  --color-blue: #a5c8ff;
-  --color-green: #a8e6cf;
-  --color-purple: #c3b1e1;
-  --color-pink: #f7b2d0;
-  --color-yellow: #fce4a8;
+  /* Vibrant timer colors for light mode */
+  --color-blue: #60a5fa;
+  --color-green: #34d399;
+  --color-purple: #a78bfa;
+  --color-pink: #f472b6;
+  --color-yellow: #fbbf24;
+  --color-orange: #fb923c;
+  --color-red: #f87171;
+  --color-teal: #2dd4bf;
+  --color-indigo: #818cf8;
+  --color-lime: #a3e635;
 
   /* Text colors */
-  --text-dark: #3d3d5c;
-  --text-light: #eae8f5;
+  --text-dark: #1e293b;
+  --text-light: #f1f5f9;
 
   /* UI colors — light */
-  --bg-app-from: #e8e0f0;
-  --bg-app-to: #dce4f8;
-  --bg-button: rgba(255, 255, 255, 0.55);
-  --bg-button-hover: rgba(255, 255, 255, 0.8);
+  --bg-app-from: #e0e7ff;
+  --bg-app-to: #ddd6fe;
+  --bg-button: rgba(255, 255, 255, 0.6);
+  --bg-button-hover: rgba(255, 255, 255, 0.85);
 
   /* Add button */
-  --add-button-bg: rgba(255, 255, 255, 0.5);
-  --add-button-hover: rgba(255, 255, 255, 0.75);
-  --add-button-text: #5b4a8a;
+  --add-button-bg: rgba(255, 255, 255, 0.55);
+  --add-button-hover: rgba(255, 255, 255, 0.8);
+  --add-button-text: #6366f1;
 
   /* Dark mode colors */
-  --dark-bg-app-from: #1a1a2e;
-  --dark-bg-app-to: #16213e;
-  --dark-bg-button: rgba(255, 255, 255, 0.07);
-  --dark-bg-button-hover: rgba(255, 255, 255, 0.13);
-  --dark-add-button-bg: rgba(255, 255, 255, 0.06);
-  --dark-add-button-hover: rgba(255, 255, 255, 0.12);
-  --dark-add-button-text: #c3b1e1;
+  --dark-bg-app-from: #0f172a;
+  --dark-bg-app-to: #1e1b4b;
+  --dark-bg-button: rgba(255, 255, 255, 0.08);
+  --dark-bg-button-hover: rgba(255, 255, 255, 0.15);
+  --dark-add-button-bg: rgba(255, 255, 255, 0.07);
+  --dark-add-button-hover: rgba(255, 255, 255, 0.14);
+  --dark-add-button-text: #a78bfa;
 }
 
-/* ─── Timer card backgrounds ─── */
-.timer-bg-blue   { background: linear-gradient(135deg, #a5c8ff 0%, #c4daff 100%); }
-.timer-bg-green  { background: linear-gradient(135deg, #a8e6cf 0%, #c4f0dc 100%); }
-.timer-bg-purple { background: linear-gradient(135deg, #c3b1e1 0%, #d9cef0 100%); }
-.timer-bg-pink   { background: linear-gradient(135deg, #f7b2d0 0%, #fdd0e1 100%); }
-.timer-bg-yellow { background: linear-gradient(135deg, #fce4a8 0%, #fef0cd 100%); }
+/* ─── Timer card backgrounds — vibrant light mode ─── */
+.timer-bg-blue    { background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%); }
+.timer-bg-green   { background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%); }
+.timer-bg-purple  { background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%); }
+.timer-bg-pink    { background: linear-gradient(135deg, #f472b6 0%, #f9a8d4 100%); }
+.timer-bg-yellow  { background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%); }
+.timer-bg-orange  { background: linear-gradient(135deg, #fb923c 0%, #fdba74 100%); }
+.timer-bg-red     { background: linear-gradient(135deg, #f87171 0%, #fca5a5 100%); }
+.timer-bg-teal    { background: linear-gradient(135deg, #2dd4bf 0%, #5eead4 100%); }
+.timer-bg-indigo  { background: linear-gradient(135deg, #818cf8 0%, #a5b4fc 100%); }
+.timer-bg-lime    { background: linear-gradient(135deg, #a3e635 0%, #bef264 100%); }
 
-/* Dark mode timer backgrounds — deeper, muted */
-.dark .timer-bg-blue   { background: linear-gradient(135deg, #1e3a5f 0%, #253d5e 100%); }
-.dark .timer-bg-green  { background: linear-gradient(135deg, #1a3d2e 0%, #24463a 100%); }
-.dark .timer-bg-purple { background: linear-gradient(135deg, #2d2250 0%, #362a5c 100%); }
-.dark .timer-bg-pink   { background: linear-gradient(135deg, #3d1f34 0%, #4a2840 100%); }
-.dark .timer-bg-yellow { background: linear-gradient(135deg, #3d3318 0%, #4a3e22 100%); }
+/* Dark mode timer backgrounds — rich neon glows */
+.dark .timer-bg-blue    { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); }
+.dark .timer-bg-green   { background: linear-gradient(135deg, #059669 0%, #047857 100%); }
+.dark .timer-bg-purple  { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+.dark .timer-bg-pink    { background: linear-gradient(135deg, #db2777 0%, #be185d 100%); }
+.dark .timer-bg-yellow  { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+.dark .timer-bg-orange  { background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%); }
+.dark .timer-bg-red     { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+.dark .timer-bg-teal    { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); }
+.dark .timer-bg-indigo  { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%); }
+.dark .timer-bg-lime    { background: linear-gradient(135deg, #65a30d 0%, #4d7c0f 100%); }
 
 /* ─── Progress bars ─── */
-.progress-bg-blue   { background: linear-gradient(to bottom, rgba(165, 200, 255, 0.7), rgba(120, 170, 240, 0.7)); }
-.progress-bg-green  { background: linear-gradient(to bottom, rgba(168, 230, 207, 0.7), rgba(120, 210, 180, 0.7)); }
-.progress-bg-purple { background: linear-gradient(to bottom, rgba(195, 177, 225, 0.7), rgba(167, 139, 210, 0.7)); }
-.progress-bg-pink   { background: linear-gradient(to bottom, rgba(247, 178, 208, 0.7), rgba(230, 140, 180, 0.7)); }
-.progress-bg-yellow { background: linear-gradient(to bottom, rgba(252, 228, 168, 0.7), rgba(240, 200, 120, 0.7)); }
+.progress-bg-blue    { background: linear-gradient(to bottom, rgba(96, 165, 250, 0.65), rgba(59, 130, 246, 0.65)); }
+.progress-bg-green   { background: linear-gradient(to bottom, rgba(52, 211, 153, 0.65), rgba(16, 185, 129, 0.65)); }
+.progress-bg-purple  { background: linear-gradient(to bottom, rgba(167, 139, 250, 0.65), rgba(139, 92, 246, 0.65)); }
+.progress-bg-pink    { background: linear-gradient(to bottom, rgba(244, 114, 182, 0.65), rgba(236, 72, 153, 0.65)); }
+.progress-bg-yellow  { background: linear-gradient(to bottom, rgba(251, 191, 36, 0.65), rgba(245, 158, 11, 0.65)); }
+.progress-bg-orange  { background: linear-gradient(to bottom, rgba(251, 146, 60, 0.65), rgba(249, 115, 22, 0.65)); }
+.progress-bg-red     { background: linear-gradient(to bottom, rgba(248, 113, 113, 0.65), rgba(239, 68, 68, 0.65)); }
+.progress-bg-teal    { background: linear-gradient(to bottom, rgba(45, 212, 191, 0.65), rgba(20, 184, 166, 0.65)); }
+.progress-bg-indigo  { background: linear-gradient(to bottom, rgba(129, 140, 248, 0.65), rgba(99, 102, 241, 0.65)); }
+.progress-bg-lime    { background: linear-gradient(to bottom, rgba(163, 230, 53, 0.65), rgba(132, 204, 22, 0.65)); }
 
-.dark .progress-bg-blue   { background: linear-gradient(to bottom, rgba(80, 140, 220, 0.25), rgba(60, 120, 200, 0.25)); }
-.dark .progress-bg-green  { background: linear-gradient(to bottom, rgba(80, 200, 150, 0.25), rgba(60, 180, 130, 0.25)); }
-.dark .progress-bg-purple { background: linear-gradient(to bottom, rgba(140, 100, 210, 0.25), rgba(120, 80, 190, 0.25)); }
-.dark .progress-bg-pink   { background: linear-gradient(to bottom, rgba(220, 120, 170, 0.25), rgba(200, 100, 150, 0.25)); }
-.dark .progress-bg-yellow { background: linear-gradient(to bottom, rgba(220, 190, 100, 0.25), rgba(200, 170, 80, 0.25)); }
+.dark .progress-bg-blue    { background: linear-gradient(to bottom, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.3)); }
+.dark .progress-bg-green   { background: linear-gradient(to bottom, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3)); }
+.dark .progress-bg-purple  { background: linear-gradient(to bottom, rgba(139, 92, 246, 0.3), rgba(124, 58, 237, 0.3)); }
+.dark .progress-bg-pink    { background: linear-gradient(to bottom, rgba(236, 72, 153, 0.3), rgba(219, 39, 119, 0.3)); }
+.dark .progress-bg-yellow  { background: linear-gradient(to bottom, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.3)); }
+.dark .progress-bg-orange  { background: linear-gradient(to bottom, rgba(249, 115, 22, 0.3), rgba(234, 88, 12, 0.3)); }
+.dark .progress-bg-red     { background: linear-gradient(to bottom, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.3)); }
+.dark .progress-bg-teal    { background: linear-gradient(to bottom, rgba(20, 184, 166, 0.3), rgba(13, 148, 136, 0.3)); }
+.dark .progress-bg-indigo  { background: linear-gradient(to bottom, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.3)); }
+.dark .progress-bg-lime    { background: linear-gradient(to bottom, rgba(132, 204, 22, 0.3), rgba(101, 163, 13, 0.3)); }
 
 /* ─── Buttons ─── */
 .timer-button {
@@ -79,17 +104,27 @@
 }
 
 /* ─── Color selectors ─── */
-.color-selector-blue   { background-color: var(--color-blue);   box-shadow: 0 2px 6px rgba(165, 200, 255, 0.5); }
-.color-selector-green  { background-color: var(--color-green);  box-shadow: 0 2px 6px rgba(168, 230, 207, 0.5); }
-.color-selector-purple { background-color: var(--color-purple); box-shadow: 0 2px 6px rgba(195, 177, 225, 0.5); }
-.color-selector-pink   { background-color: var(--color-pink);   box-shadow: 0 2px 6px rgba(247, 178, 208, 0.5); }
-.color-selector-yellow { background-color: var(--color-yellow); box-shadow: 0 2px 6px rgba(252, 228, 168, 0.5); }
+.color-selector-blue    { background-color: var(--color-blue);    box-shadow: 0 2px 6px rgba(96, 165, 250, 0.5); }
+.color-selector-green   { background-color: var(--color-green);   box-shadow: 0 2px 6px rgba(52, 211, 153, 0.5); }
+.color-selector-purple  { background-color: var(--color-purple);  box-shadow: 0 2px 6px rgba(167, 139, 250, 0.5); }
+.color-selector-pink    { background-color: var(--color-pink);    box-shadow: 0 2px 6px rgba(244, 114, 182, 0.5); }
+.color-selector-yellow  { background-color: var(--color-yellow);  box-shadow: 0 2px 6px rgba(251, 191, 36, 0.5); }
+.color-selector-orange  { background-color: var(--color-orange);  box-shadow: 0 2px 6px rgba(251, 146, 60, 0.5); }
+.color-selector-red     { background-color: var(--color-red);     box-shadow: 0 2px 6px rgba(248, 113, 113, 0.5); }
+.color-selector-teal    { background-color: var(--color-teal);    box-shadow: 0 2px 6px rgba(45, 212, 191, 0.5); }
+.color-selector-indigo  { background-color: var(--color-indigo);  box-shadow: 0 2px 6px rgba(129, 140, 248, 0.5); }
+.color-selector-lime    { background-color: var(--color-lime);    box-shadow: 0 2px 6px rgba(163, 230, 53, 0.5); }
 
-.dark .color-selector-blue   { background-color: #5b8cc9; box-shadow: 0 2px 6px rgba(91, 140, 201, 0.35); }
-.dark .color-selector-green  { background-color: #5bb890; box-shadow: 0 2px 6px rgba(91, 184, 144, 0.35); }
-.dark .color-selector-purple { background-color: #8b6ebf; box-shadow: 0 2px 6px rgba(139, 110, 191, 0.35); }
-.dark .color-selector-pink   { background-color: #d07ca0; box-shadow: 0 2px 6px rgba(208, 124, 160, 0.35); }
-.dark .color-selector-yellow { background-color: #c9b05e; box-shadow: 0 2px 6px rgba(201, 176, 94, 0.35); }
+.dark .color-selector-blue    { background-color: #3b82f6; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.5); }
+.dark .color-selector-green   { background-color: #10b981; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.5); }
+.dark .color-selector-purple  { background-color: #8b5cf6; box-shadow: 0 2px 6px rgba(139, 92, 246, 0.5); }
+.dark .color-selector-pink    { background-color: #ec4899; box-shadow: 0 2px 6px rgba(236, 72, 153, 0.5); }
+.dark .color-selector-yellow  { background-color: #f59e0b; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.5); }
+.dark .color-selector-orange  { background-color: #f97316; box-shadow: 0 2px 6px rgba(249, 115, 22, 0.5); }
+.dark .color-selector-red     { background-color: #ef4444; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5); }
+.dark .color-selector-teal    { background-color: #14b8a6; box-shadow: 0 2px 6px rgba(20, 184, 166, 0.5); }
+.dark .color-selector-indigo  { background-color: #6366f1; box-shadow: 0 2px 6px rgba(99, 102, 241, 0.5); }
+.dark .color-selector-lime    { background-color: #84cc16; box-shadow: 0 2px 6px rgba(132, 204, 22, 0.5); }
 
 /* ─── Add button ─── */
 .add-button {
