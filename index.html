@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -168,207 +168,215 @@
       }
     </style>
   </head>
-  <body class="app-background dark:bg-gray-900 min-h-screen p-6">
-    <!-- Change from max-w-lg to max-w-4xl to accommodate the wider layout -->
+  <body class="app-background min-h-screen p-6">
     <div x-data="timerApp()" class="max-w-4xl mx-auto">
-      <!-- Header with About button -->
-      <div class="flex items-center justify-between mb-8">
-        <h1 class="text-4xl font-bold">
-          <span class="text-gray-800 dark:text-gray-100">timer</span
-          ><img
-            src="timer-moe-logo.svg"
-            alt="timer.moe logo"
-            class="inline align-bottom w-6 h-6"
-          /><span class="text-gray-800 dark:text-gray-100">moe</span>
-        </h1>
-        <div class="flex space-x-3">
-          <!-- Sync button -->
-          <button
-            @click="showSyncModal = true"
-            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text dark:bg-gray-700 dark:text-gray-100"
-            :class="{'bg-green-50 hover:bg-green-100': user}"
-            aria-label="Sync timers across devices"
-          >
-            <span
-              class="material-icons md-20"
-              x-text="user ? 'cloud_done' : 'cloud_off'"
-            ></span>
-            <span x-text="user ? 'Synced' : 'Sync'"></span>
-          </button>
-          <!-- Theme toggle button -->
-          <button
-            @click="toggleTheme()"
-            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text dark:bg-gray-700 dark:text-gray-100"
-            aria-label="Toggle theme"
-          >
-            <span
-              class="material-icons md-20"
-              x-text="isDarkMode ? 'light_mode' : 'dark_mode'"
-            ></span>
-            <span x-text="isDarkMode ? 'Light' : 'Dark'"></span>
-          </button>
-          <!-- About button -->
-          <button
-            @click="showAbout = true"
-            class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text dark:bg-gray-700 dark:text-gray-100"
-            aria-label="About timer.moe"
-          >
-            <span class="material-icons md-20">info</span>
-            <span>About</span>
-          </button>
+      <!-- Main app content — disabled while syncing -->
+      <div
+        :class="(isInitializing || isSyncing) ? 'app-disabled' : 'app-enabled'"
+      >
+        <!-- Header with About button -->
+        <div class="flex items-center justify-between mb-8 fade-in-up">
+          <h1 class="text-3xl font-semibold tracking-tight">
+            <span class="text-gray-700 dark:text-gray-200">timer</span
+            ><img
+              src="timer-moe-logo.svg"
+              alt="timer.moe logo"
+              class="inline align-bottom w-5 h-5 mx-0.5"
+            /><span class="text-gray-700 dark:text-gray-200">moe</span>
+          </h1>
+          <div class="flex space-x-2">
+            <!-- Sync button -->
+            <button
+              @click="showSyncModal = true"
+              class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+              :class="{'bg-green-50/60 dark:bg-green-900/20': user}"
+              aria-label="Sync timers across devices"
+            >
+              <span
+                class="material-icons md-20"
+                x-text="user ? 'cloud_done' : 'cloud_off'"
+              ></span>
+              <span x-text="user ? 'Synced' : 'Sync'"></span>
+            </button>
+            <!-- Theme toggle button -->
+            <button
+              @click="toggleTheme()"
+              class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+              aria-label="Toggle theme"
+            >
+              <span
+                class="material-icons md-20"
+                x-text="isDarkMode ? 'light_mode' : 'dark_mode'"
+              ></span>
+              <span x-text="isDarkMode ? 'Light' : 'Dark'"></span>
+            </button>
+            <!-- About button -->
+            <button
+              @click="showAbout = true"
+              class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+              aria-label="About timer.moe"
+            >
+              <span class="material-icons md-20">info</span>
+              <span>About</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <!-- Timer Cards - Convert to grid layout -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <template x-for="(timer, index) in timers" :key="timer.id">
-          <div
-            :class="`p-5 rounded-2xl shadow-lg transition-all relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')}`"
-            x-transition:enter="timer-transition-enter-active"
-            x-transition:enter-start="timer-transition-enter-from"
-            x-transition:leave="timer-transition-leave-active"
-            x-transition:leave-end="timer-transition-leave-to"
-          >
-            <!-- Progress Bar - only for countdown timers -->
-            <template x-if="timer.mode === 'countdown' && timer.isRunning">
-              <div
-                class="absolute inset-0 transition-transform duration-500"
-                :class="getColorClass(timer.color, 'progress')"
-                :style="`transform: translateY(${ticker, getProgressPercentage(timer)}%)`"
-              ></div>
-            </template>
-
-            <!-- Content wrapper with z-index -->
-            <div class="relative z-10">
-              <!-- Close Button (X in corner) with Material Icon -->
-              <button
-                @click="removeTimer(index)"
-                class="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-full bg-white/30 hover:bg-white/60 text-slate-600 hover:text-slate-900 transition-all hover:scale-110"
-                aria-label="Remove timer"
-              >
-                <span class="material-icons md-18">close</span>
-              </button>
-
-              <!-- Timer Header - Centered with larger name -->
-              <div class="flex flex-col items-center mb-3">
-                <input
-                  type="text"
-                  x-model="timer.name"
-                  @change="saveTimers()"
-                  class="bg-transparent font-medium text-2xl text-center timer-name-input px-2 py-1 max-w-full"
-                  :placeholder="`Timer ${index + 1}`"
-                />
-
-                <!-- Color Selector - Centered -->
-                <div class="flex space-x-3 mt-3">
-                  <template x-for="color in colors" :key="color">
-                    <button
-                      @click="timer.color = color; saveTimers()"
-                      :class="`w-6 h-6 rounded-full hover:scale-125 transition-all color-selector-${color} ${timer.color === color ? 'ring-2 ring-slate-700 ring-offset-2' : ''}`"
-                      :aria-label="`Select ${color} color`"
-                    ></button>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Timer Display -->
-              <div class="text-center py-4">
+        <!-- Timer Cards -->
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8 fade-in-up fade-in-up-delay-1"
+        >
+          <template x-for="(timer, index) in timers" :key="timer.id">
+            <div
+              :class="`p-5 rounded-2xl relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')}`"
+              x-transition:enter="timer-transition-enter-active"
+              x-transition:enter-start="timer-transition-enter-from"
+              x-transition:leave="timer-transition-leave-active"
+              x-transition:leave-end="timer-transition-leave-to"
+            >
+              <!-- Progress Bar - only for countdown timers -->
+              <template x-if="timer.mode === 'countdown' && timer.isRunning">
                 <div
-                  class="text-5xl font-mono font-semibold timer-display"
-                  :class="{'timer-running': timer.isRunning}"
-                  x-text="formatTime(timer)"
+                  class="absolute inset-0 transition-transform duration-500"
+                  :class="getColorClass(timer.color, 'progress')"
+                  :style="`transform: translateY(${ticker, getProgressPercentage(timer)}%)`"
                 ></div>
-              </div>
+              </template>
 
-              <!-- Timer Controls -->
-              <div
-                class="flex flex-wrap items-center justify-between gap-3 mt-3"
-              >
-                <!-- Mode Toggle with icon -->
+              <!-- Content wrapper with z-index -->
+              <div class="relative z-10">
+                <!-- Close Button (X in corner) -->
                 <button
-                  @click="toggleMode(timer)"
-                  class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+                  @click="removeTimer(index)"
+                  class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/50 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all timer-close-btn"
+                  aria-label="Remove timer"
                 >
-                  <span
-                    class="material-icons md-20"
-                    x-text="timer.mode === 'countdown' ? 'timer' : 'timer_off'"
-                  ></span>
-                  <span
-                    x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"
-                  ></span>
+                  <span class="material-icons md-18">close</span>
                 </button>
 
-                <!-- Countdown Duration (only for countdown mode) -->
-                <template x-if="timer.mode === 'countdown'">
-                  <div class="flex items-center">
-                    <input
-                      type="number"
-                      x-model.number="timer.duration"
-                      @change="updateDuration(timer)"
-                      class="w-14 duration-input rounded-xl px-2 py-1.5 text-center text-sm"
-                      min="1"
-                    />
-                    <span class="ml-1 text-sm">min</span>
-                  </div>
-                </template>
+                <!-- Timer Header -->
+                <div class="flex flex-col items-center mb-3">
+                  <input
+                    type="text"
+                    x-model="timer.name"
+                    @change="saveTimers()"
+                    class="bg-transparent font-medium text-xl text-center timer-name-input px-2 py-1 max-w-full dark:text-gray-100"
+                    :placeholder="`Timer ${index + 1}`"
+                  />
 
-                <!-- Main Controls with icons -->
-                <div class="flex space-x-2">
-                  <!-- Toggle button (Start/Pause) -->
+                  <!-- Color Selector -->
+                  <div class="flex space-x-2.5 mt-2.5">
+                    <template x-for="color in colors" :key="color">
+                      <button
+                        @click="timer.color = color; saveTimers()"
+                        :class="`w-5 h-5 rounded-full hover:scale-125 transition-all color-selector-${color} ${timer.color === color ? 'ring-2 ring-slate-600 dark:ring-slate-300 ring-offset-1' : ''}`"
+                        :aria-label="`Select ${color} color`"
+                      ></button>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Timer Display -->
+                <div class="text-center py-3">
+                  <div
+                    class="text-5xl font-mono font-semibold timer-display text-slate-800 dark:text-gray-100"
+                    x-text="formatTime(timer)"
+                  ></div>
+                </div>
+
+                <!-- Timer Controls -->
+                <div
+                  class="flex flex-wrap items-center justify-between gap-3 mt-3"
+                >
+                  <!-- Mode Toggle with icon -->
                   <button
-                    @click="toggleTimer(timer)"
-                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
-                    :class="{'bg-red-50 hover:bg-red-100': timer.isRunning, 'bg-green-50 hover:bg-green-100': !timer.isRunning}"
+                    @click="toggleMode(timer)"
+                    class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
                   >
                     <span
-                      class="material-icons"
-                      x-text="timer.isRunning ? 'pause_circle' : 'play_circle'"
+                      class="material-icons md-20"
+                      x-text="timer.mode === 'countdown' ? 'timer' : 'timer_off'"
+                    ></span>
+                    <span
+                      x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"
                     ></span>
                   </button>
 
-                  <!-- Reset button -->
-                  <button
-                    @click="resetTimer(timer)"
-                    class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
-                  >
-                    <span class="material-icons">restart_alt</span>
-                  </button>
+                  <!-- Countdown Duration (only for countdown mode) -->
+                  <template x-if="timer.mode === 'countdown'">
+                    <div class="flex items-center">
+                      <input
+                        type="number"
+                        x-model.number="timer.duration"
+                        @change="updateDuration(timer)"
+                        class="w-14 duration-input rounded-xl px-2 py-1.5 text-center text-sm"
+                        min="1"
+                      />
+                      <span class="ml-1 text-sm">min</span>
+                    </div>
+                  </template>
+
+                  <!-- Main Controls with icons -->
+                  <div class="flex space-x-2">
+                    <!-- Toggle button (Start/Pause) -->
+                    <button
+                      @click="toggleTimer(timer)"
+                      class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
+                      :class="{'bg-red-50 hover:bg-red-100': timer.isRunning, 'bg-green-50 hover:bg-green-100': !timer.isRunning}"
+                    >
+                      <span
+                        class="material-icons"
+                        x-text="timer.isRunning ? 'pause_circle' : 'play_circle'"
+                      ></span>
+                    </button>
+
+                    <!-- Reset button -->
+                    <button
+                      @click="resetTimer(timer)"
+                      class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
+                    >
+                      <span class="material-icons">restart_alt</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </template>
-      </div>
+          </template>
+        </div>
 
-      <!-- Add Timer Button with Icon -->
-      <div class="text-center">
-        <button
-          @click="addTimer()"
-          class="add-button px-6 py-3 rounded-xl font-medium text-lg transition-all inline-flex items-center justify-center"
-        >
-          <span class="material-icons mr-2">add_circle</span>
-          <span>Add Timer</span>
-        </button>
+        <!-- Add Timer Button -->
+        <div class="text-center fade-in-up fade-in-up-delay-2">
+          <button
+            @click="addTimer()"
+            class="add-button px-6 py-3 rounded-2xl font-medium text-base transition-all inline-flex items-center justify-center"
+          >
+            <span class="material-icons mr-2 md-20">add_circle</span>
+            <span>Add Timer</span>
+          </button>
+        </div>
       </div>
+      <!-- end app-disabled/app-enabled wrapper -->
 
-      <!-- Syncing Overlay -->
+      <!-- Syncing / Initializing Overlay -->
       <div
-        x-show="isSyncing"
+        x-show="isInitializing || isSyncing"
         class="fixed inset-0 z-50 flex items-center justify-center"
         x-cloak
       >
         <!-- Backdrop -->
         <div
-          class="absolute inset-0 bg-black/30 backdrop-blur-sm"
-          x-transition:enter="backdrop-transition-enter"
-          x-transition:enter-start="backdrop-transition-enter-start"
-          x-transition:leave="backdrop-transition-leave"
-          x-transition:leave-end="backdrop-transition-leave-end"
+          class="absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm"
+          x-transition:enter="transition ease-out duration-300"
+          x-transition:enter-start="opacity-0"
+          x-transition:enter-end="opacity-100"
+          x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="opacity-100"
+          x-transition:leave-end="opacity-0"
         ></div>
 
         <!-- Loading Content -->
         <div
-          class="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl text-center"
+          class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-8 shadow-2xl text-center border border-white/40 dark:border-white/10"
           x-transition:enter="transition ease-out duration-300"
           x-transition:enter-start="opacity-0 transform scale-95"
           x-transition:enter-end="opacity-100 transform scale-100"
@@ -377,22 +385,22 @@
           x-transition:leave-end="opacity-0 transform scale-95"
         >
           <div class="flex flex-col items-center space-y-4">
-            <!-- Spinning icon -->
-            <div class="animate-spin">
+            <!-- Spinner -->
+            <div class="sync-spinner">
               <span
-                class="material-icons text-indigo-600 dark:text-indigo-400"
-                style="font-size: 48px"
+                class="material-icons text-purple-500 dark:text-purple-400"
+                style="font-size: 40px"
                 >sync</span
               >
             </div>
             <div>
               <h3
-                class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-1"
+                class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1"
               >
-                Syncing your timers...
+                Syncing your timers
               </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Please wait while we load your data
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Just a moment...
               </p>
             </div>
           </div>
@@ -401,14 +409,14 @@
 
       <!-- Sync Modal -->
       <div
-        x-show="showSyncModal"
+        x-show="showSyncModal && !isInitializing && !isSyncing"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         x-cloak
       >
         <!-- Backdrop -->
         <div
           @click="showSyncModal = false"
-          class="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          class="absolute inset-0 bg-black/15 dark:bg-black/30 backdrop-blur-sm"
           x-transition:enter="backdrop-transition-enter"
           x-transition:enter-start="backdrop-transition-enter-start"
           x-transition:leave="backdrop-transition-leave"
@@ -417,7 +425,7 @@
 
         <!-- Modal Content -->
         <div
-          class="relative max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl timer-card"
+          class="relative max-w-md w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/40 dark:border-white/10"
           x-transition:enter="transition ease-out duration-300"
           x-transition:enter-start="opacity-0 transform scale-95"
           x-transition:enter-end="opacity-100 transform scale-100"
@@ -428,7 +436,7 @@
           <!-- Close button -->
           <button
             @click="showSyncModal = false"
-            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 transition-all"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 dark:bg-gray-700/60 dark:hover:bg-gray-600 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 transition-all"
             aria-label="Close sync modal"
           >
             <span class="material-icons md-18">close</span>
@@ -440,7 +448,7 @@
             <template x-if="user">
               <div>
                 <h2
-                  class="text-2xl font-semibold text-slate-800 dark:text-gray-100 mb-4"
+                  class="text-xl font-semibold text-slate-700 dark:text-gray-200 mb-4"
                 >
                   Account
                 </h2>
@@ -482,7 +490,11 @@
                     <button
                       @click="deleteAccount()"
                       class="w-full px-4 py-2 rounded-xl text-sm font-medium inline-flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-900/20 dark:hover:bg-red-800/30 dark:text-red-300 transition-all"
-                      onclick="return confirm('Are you sure you want to delete your account? This will permanently delete all your timer data and cannot be undone.')"
+                      onclick="
+                        return confirm(
+                          'Are you sure you want to delete your account? This will permanently delete all your timer data and cannot be undone.',
+                        );
+                      "
                     >
                       <span class="material-icons mr-2 md-18"
                         >delete_forever</span
@@ -498,7 +510,7 @@
             <template x-if="!user">
               <div>
                 <h2
-                  class="text-2xl font-semibold text-slate-800 dark:text-gray-100 mb-4"
+                  class="text-xl font-semibold text-slate-700 dark:text-gray-200 mb-4"
                 >
                   <span
                     x-text="registerMode ? 'Create Account' : 'Sign In'"
@@ -611,7 +623,7 @@
         <!-- Backdrop -->
         <div
           @click="showAbout = false"
-          class="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          class="absolute inset-0 bg-black/15 dark:bg-black/30 backdrop-blur-sm"
           x-transition:enter="backdrop-transition-enter"
           x-transition:enter-start="backdrop-transition-enter-start"
           x-transition:leave="backdrop-transition-leave"
@@ -620,7 +632,7 @@
 
         <!-- Modal Content -->
         <div
-          class="relative max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl timer-card"
+          class="relative max-w-md w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/40 dark:border-white/10"
           x-transition:enter="transition ease-out duration-300"
           x-transition:enter-start="opacity-0 transform scale-95"
           x-transition:enter-end="opacity-100 transform scale-100"
@@ -631,7 +643,7 @@
           <!-- Close button -->
           <button
             @click="showAbout = false"
-            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 transition-all"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 dark:bg-gray-700/60 dark:hover:bg-gray-600 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 transition-all"
             aria-label="Close about"
           >
             <span class="material-icons md-18">close</span>
@@ -640,7 +652,7 @@
           <!-- About content -->
           <div class="text-center">
             <h2
-              class="text-2xl font-semibold text-slate-800 dark:text-gray-100 mb-4"
+              class="text-xl font-semibold text-slate-700 dark:text-gray-200 mb-4"
             >
               About timer.moe
             </h2>

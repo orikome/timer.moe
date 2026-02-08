@@ -15,8 +15,13 @@ function timerApp() {
     authError: '',
     lastSyncTimestamp: 0, // Track when data was last synced
     isSyncing: false, // Track when we're loading data from Firestore
+    isInitializing: true, // Block UI until auth state is resolved
 
     init() {
+      // Check if user was previously logged in to show sync overlay immediately
+      const wasLoggedIn = localStorage.getItem('wasLoggedIn') === 'true';
+      this.isInitializing = wasLoggedIn;
+
       // Always load from localStorage first for immediate display
       this.loadTimers();
       this.loadThemePreference();
@@ -41,13 +46,19 @@ function timerApp() {
 
     initFirebaseAuth() {
       if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().onAuthStateChanged((user) => {
+        firebase.auth().onAuthStateChanged(async (user) => {
           this.user = user;
           if (user) {
+            localStorage.setItem('wasLoggedIn', 'true');
             // User is signed in, load data from Firestore as the source of truth
-            this.loadTimersFromFirestore();
+            await this.loadTimersFromFirestore();
+          } else {
+            localStorage.setItem('wasLoggedIn', 'false');
           }
+          this.isInitializing = false;
         });
+      } else {
+        this.isInitializing = false;
       }
     },
 
@@ -448,8 +459,8 @@ function timerApp() {
         // Create notification element
         const notification = document.createElement("div");
         notification.className =
-          "fixed bottom-4 right-4 bg-indigo-600 text-white py-2 px-4 rounded-lg shadow-lg z-50 animate-bounce";
-        notification.innerHTML = "Timer completed!";
+          "fixed bottom-4 right-4 bg-purple-500 text-white py-3 px-5 rounded-2xl shadow-lg z-50 animate-bounce text-sm font-medium";
+        notification.innerHTML = "Timer completed! \u2728";
 
         // Add to document
         document.body.appendChild(notification);
