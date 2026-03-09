@@ -10,6 +10,9 @@ on:
       - 'timer.js'
       - 'styles.css'
       - 'CNAME'
+      - 'robots.txt'
+      - 'sitemap.xml'
+      - 'manifest.json'
       - '.github/workflows/deploy.yml'
 
 # Allow running manually from the Actions tab
@@ -72,6 +75,10 @@ jobs:
           if [ -f screenshot.jpg ]; then cp screenshot.jpg build/; fi
           # Copy SVG files
           find . -maxdepth 1 -name "*.svg" -exec cp {} build/ \;
+          # Copy SEO and PWA files
+          if [ -f robots.txt ]; then cp robots.txt build/; fi
+          if [ -f sitemap.xml ]; then cp sitemap.xml build/; fi
+          if [ -f manifest.json ]; then cp manifest.json build/; fi
       
       - name: Setup Pages
         uses: actions/configure-pages@v4

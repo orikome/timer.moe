@@ -30,11 +30,15 @@
       content="ADHD timer, neurodivergent productivity, pomodoro timer, focus timer, multiple timers, persistent timers, background timers, stopwatch, time management, ADHD tools"
     />
     <meta name="author" content="timer.moe" />
+    <meta name="robots" content="index, follow" />
+    <meta name="application-name" content="timer.moe" />
     <link rel="canonical" href="https://timer.moe/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://timer.moe/" />
+    <meta property="og:site_name" content="timer.moe" />
+    <meta property="og:locale" content="en_US" />
     <meta
       property="og:title"
       content="timer.moe - Focus Timers for Neurodivergent Minds"
@@ -44,6 +48,9 @@
       content="Multiple timers that track time even when tabs are closed. Perfect for ADHD brains - run Pomodoro and stopwatch timers simultaneously with persistent tracking."
     />
     <meta property="og:image" content="https://timer.moe/screenshot.jpg" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="720" />
+    <meta property="og:image:alt" content="timer.moe app showing multiple simultaneous focus timers" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -58,7 +65,7 @@
     />
     <meta name="twitter:image" content="https://timer.moe/screenshot.jpg" />
 
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD Structured Data: SoftwareApplication -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -67,7 +74,9 @@
         "url": "https://timer.moe/",
         "description": "Time management tool designed for neurodivergent and ADHD brains. Features multiple simultaneous timers that continue tracking even when browser tabs are closed. Supports both Pomodoro and stopwatch modes to enhance focus and productivity.",
         "applicationCategory": "Productivity",
+        "applicationSubCategory": "Time Management",
         "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -81,7 +90,9 @@
           "Persistent timers between browser sessions",
           "ADHD-friendly interface with visual color coding",
           "Dark mode support for reduced visual strain",
-          "Timer notifications for task completion"
+          "Timer notifications for task completion",
+          "Cross-device sync via Google account",
+          "No account required to use"
         ],
         "screenshot": "https://timer.moe/screenshot.jpg",
         "author": {
@@ -94,9 +105,89 @@
             "Students",
             "Professionals",
             "People with ADHD",
-            "Neurodivergent individuals"
+            "Neurodivergent individuals",
+            "Remote workers",
+            "Freelancers"
           ]
+        },
+        "potentialAction": {
+          "@type": "UseAction",
+          "target": "https://timer.moe/"
         }
+      }
+    </script>
+
+    <!-- JSON-LD Structured Data: FAQPage (for GEO / AI search engines) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is timer.moe?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "timer.moe is a free, browser-based productivity timer app designed for people with ADHD and neurodivergent minds. It lets you run multiple simultaneous timers in one browser tab, with both Pomodoro countdown and stopwatch modes. Timers persist even when you close the tab or switch away."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do timers keep running when I close the browser tab?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. timer.moe records timestamps rather than counting down in real time, so your timers accurately reflect elapsed time even after you close the tab, switch windows, or put your device to sleep. When you return, the timer shows the correct time as if it never stopped."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is timer.moe free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, timer.moe is completely free with no ads, no paywalls, and no subscription required. You can use all features without creating an account. An optional free account enables cross-device sync via Firebase."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What timer modes does timer.moe support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "timer.moe supports two modes per timer: Countdown (Pomodoro) mode, where you set a duration in minutes and the timer counts down to zero; and Stopwatch mode, which counts upward indefinitely. You can switch between modes at any time and run multiple timers in different modes simultaneously."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why is timer.moe good for ADHD?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "timer.moe is designed with ADHD and neurodivergent users in mind. It supports time-boxing with Pomodoro timers, lets you track multiple tasks simultaneously (no need to stop one timer to start another), uses colour-coded cards for visual clarity, persists timers between sessions so you never lose track, and has a clean distraction-free interface. The background tracking means timers work correctly even when you inevitably switch tabs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I sync my timers across devices?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. By signing in with a Google account or email and password, your timers are automatically synced to Firebase and available on any device. Without an account, timers are saved locally in your browser's localStorage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does timer.moe work on mobile?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. timer.moe is fully responsive and works in any modern mobile browser. The layout adapts to smaller screens with a single-column grid. It can also be installed as a Progressive Web App (PWA) on Android and iOS for quick access from your home screen."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I use the Pomodoro technique with timer.moe?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Set a timer to Countdown mode and enter 25 minutes (the standard Pomodoro interval). Press Start and focus on one task until the timer completes. Then reset it for a 5-minute break. timer.moe lets you run a work timer and break timer side-by-side, so you always know how much work time and break time you have left."
+            }
+          }
+        ]
       }
     </script>
 
@@ -159,16 +250,99 @@
     <!-- Our timer application script -->
     <script src="timer.js"></script>
 
-    <!-- Favicon -->
+    <!-- Favicon and PWA -->
     <link rel="icon" type="image/svg+xml" href="timer-moe-logo.svg" />
+    <link rel="apple-touch-icon" href="timer-moe-logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e0e7ff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
 
     <style>
       body {
         font-family: "Inter", sans-serif;
       }
+
+      /* SEO content: collapsible details/summary */
+      .seo-details {
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        transition: background 0.15s;
+      }
+      .seo-details[open] {
+        background: rgba(255,255,255,0.45);
+        padding-bottom: 0.6rem;
+      }
+      .dark .seo-details[open] {
+        background: rgba(255,255,255,0.04);
+      }
+      .seo-summary {
+        list-style: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+        border-radius: 0.375rem;
+        user-select: none;
+        transition: color 0.15s;
+      }
+      .seo-summary:hover {
+        color: #4b5563;
+      }
+      .dark .seo-summary {
+        color: #9ca3af;
+      }
+      .dark .seo-summary:hover {
+        color: #d1d5db;
+      }
+      .seo-summary::-webkit-details-marker { display: none; }
+      .seo-summary::marker { display: none; }
+      .seo-summary::before {
+        content: "▸";
+        font-size: 0.7rem;
+        color: #a5b4fc;
+        transition: transform 0.2s;
+        display: inline-block;
+        width: 0.8rem;
+        flex-shrink: 0;
+      }
+      .seo-details[open] > .seo-summary::before {
+        transform: rotate(90deg);
+      }
+      .seo-answer {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        line-height: 1.6;
+        margin: 0.375rem 0 0.25rem 1.25rem;
+      }
+      .dark .seo-answer {
+        color: #9ca3af;
+      }
     </style>
   </head>
   <body class="app-background min-h-screen p-6">
+    <!-- Noscript fallback for crawlers and no-JS users -->
+    <noscript>
+      <div style="max-width:800px;margin:0 auto;padding:2rem;font-family:Inter,system-ui,sans-serif;color:#1e293b">
+        <h1 style="font-size:2rem;font-weight:600;margin-bottom:0.5rem">timer.moe</h1>
+        <p style="font-size:1.1rem;margin-bottom:1.5rem">Free focus timers for ADHD and neurodivergent minds. Run multiple Pomodoro countdown and stopwatch timers simultaneously — timers keep tracking even when you close the tab.</p>
+        <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.75rem">Features</h2>
+        <ul style="margin-bottom:1.5rem;padding-left:1.5rem;line-height:2">
+          <li>Multiple simultaneous timers — run as many as you need</li>
+          <li>Pomodoro countdown mode and open-ended stopwatch mode</li>
+          <li>Timers persist when you close or switch browser tabs</li>
+          <li>Timers saved between sessions via localStorage</li>
+          <li>Optional cross-device sync with a free Google account</li>
+          <li>Colour-coded timer cards for visual task separation</li>
+          <li>Dark and light mode</li>
+          <li>Completely free, no ads</li>
+        </ul>
+        <p>JavaScript is required to use timer.moe. Please enable JavaScript in your browser.</p>
+      </div>
+    </noscript>
     <div x-data="timerApp()" class="max-w-4xl mx-auto">
       <!-- Main app content — disabled while syncing -->
       <div
@@ -209,15 +383,6 @@
                 x-text="isDarkMode ? 'light_mode' : 'dark_mode'"
               ></span>
               <span x-text="isDarkMode ? 'Light' : 'Dark'"></span>
-            </button>
-            <!-- About button -->
-            <button
-              @click="showAbout = true"
-              class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
-              aria-label="About timer.moe"
-            >
-              <span class="material-icons md-20">info</span>
-              <span>About</span>
             </button>
           </div>
         </div>
@@ -613,92 +778,95 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- About Modal -->
-      <div
-        x-show="showAbout"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
-        x-cloak
-      >
-        <!-- Backdrop -->
-        <div
-          @click="showAbout = false"
-          class="absolute inset-0 bg-black/15 dark:bg-black/30 backdrop-blur-sm"
-          x-transition:enter="backdrop-transition-enter"
-          x-transition:enter-start="backdrop-transition-enter-start"
-          x-transition:leave="backdrop-transition-leave"
-          x-transition:leave-end="backdrop-transition-leave-end"
-        ></div>
+    <!-- Static SEO content: always rendered for search engines and AI crawlers -->
+    <section class="max-w-4xl mx-auto mt-14 px-2 pb-12" aria-label="About timer.moe">
+      <div class="border-t border-gray-200/60 dark:border-gray-700/60 pt-8">
 
-        <!-- Modal Content -->
-        <div
-          class="relative max-w-md w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/40 dark:border-white/10"
-          x-transition:enter="transition ease-out duration-300"
-          x-transition:enter-start="opacity-0 transform scale-95"
-          x-transition:enter-end="opacity-100 transform scale-100"
-          x-transition:leave="transition ease-in duration-200"
-          x-transition:leave-start="opacity-100 transform scale-100"
-          x-transition:leave-end="opacity-0 transform scale-95"
-        >
-          <!-- Close button -->
-          <button
-            @click="showAbout = false"
-            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 dark:bg-gray-700/60 dark:hover:bg-gray-600 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 transition-all"
-            aria-label="Close about"
-          >
-            <span class="material-icons md-18">close</span>
-          </button>
-
-          <!-- About content -->
-          <div class="text-center">
-            <h2
-              class="text-xl font-semibold text-slate-700 dark:text-gray-200 mb-4"
+        <!-- Intro + support/source links -->
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 mb-7">
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl">
+            <strong class="font-medium text-gray-600 dark:text-gray-300">timer.moe</strong>
+            is a free productivity timer for ADHD and neurodivergent minds. Run multiple Pomodoro and stopwatch timers simultaneously
+            — timers keep tracking even when you close the tab. No account needed.
+          </p>
+          <div class="flex flex-wrap gap-2 shrink-0">
+            <a
+              href="https://ko-fi.com/orikome"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-xl transition-all hover:scale-105 bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900/40 dark:text-pink-300 dark:hover:bg-pink-800/50"
             >
-              About timer.moe
-            </h2>
-
-            <div class="space-y-3 text-slate-600 dark:text-gray-300">
-              <p>Better timers for focus.</p>
-
-              <div>
-                <h3 class="font-medium text-slate-800 dark:text-gray-100 mb-1">
-                  Features:
-                </h3>
-                <ul class="text-sm space-y-1">
-                  <li>• Multiple simultaneous timers</li>
-                  <li>• Countdown (pomodoro) and stopwatch modes</li>
-                  <li>• Timers persist between sessions</li>
-                </ul>
-              </div>
-
-              <p class="text-sm pt-2">Built with Alpine.js and Tailwind CSS</p>
-
-              <!-- Support and Source Links -->
-              <div class="flex flex-wrap justify-center gap-3 pt-4">
-                <a
-                  href="https://ko-fi.com/orikome"
-                  target="_blank"
-                  rel="noopener"
-                  class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all hover:scale-105 bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900 dark:text-pink-200 dark:hover:bg-pink-800"
-                >
-                  <span class="material-icons md-18 mr-1">favorite</span>
-                  <span>Support on Ko-fi</span>
-                </a>
-
-                <a
-                  href="https://github.com/orikome/timer.moe"
-                  target="_blank"
-                  rel="noopener"
-                  class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all hover:scale-105 bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-800"
-                >
-                  <span class="material-icons md-18 mr-1">code</span>
-                  <span>View Source</span>
-                </a>
-              </div>
-            </div>
+              <span class="material-icons md-18">favorite</span> Support on Ko-fi
+            </a>
+            <a
+              href="https://github.com/orikome/timer.moe"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-xl transition-all hover:scale-105 bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:bg-gray-700"
+            >
+              <span class="material-icons md-18">code</span> View Source
+            </a>
           </div>
         </div>
+
+        <!-- Features (collapsed by default) -->
+        <details class="seo-details mb-1">
+          <summary class="seo-summary">Features</summary>
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-500 dark:text-gray-400 mt-3 mb-2 pl-1">
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Multiple simultaneous timers in a single tab</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Pomodoro countdown mode — set any duration in minutes</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Stopwatch mode for open-ended focus sessions</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Timers keep tracking when you close or switch tabs</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Timer state saved between browser sessions</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Cross-device sync with a free Google account</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Colour-coded cards for visual task separation</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Dark mode and light mode</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Animated progress bar on countdown timers</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Completely free — no subscription, no ads</li>
+          </ul>
+        </details>
+
+        <!-- FAQ (each item independently collapsible) -->
+        <div class="mt-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2 pl-1">FAQ</p>
+          <div class="space-y-0.5">
+
+            <details class="seo-details">
+              <summary class="seo-summary">Do timers keep running when I close the tab?</summary>
+              <p class="seo-answer">Yes. timer.moe records timestamps rather than counting in real time, so when you return the timer shows the correct elapsed time — as if it never stopped. This works even after closing the browser, as long as the timer was saved to localStorage.</p>
+            </details>
+
+            <details class="seo-details">
+              <summary class="seo-summary">Why is timer.moe good for ADHD?</summary>
+              <p class="seo-answer">ADHD affects time perception and task switching. timer.moe supports time-boxing, lets you monitor multiple tasks without stopping and restarting a single timer, and uses colour-coded cards so you can instantly see which timer belongs to which task. Background tracking means you never lose progress after switching tabs.</p>
+            </details>
+
+            <details class="seo-details">
+              <summary class="seo-summary">How do I use the Pomodoro technique with timer.moe?</summary>
+              <p class="seo-answer">Set a timer to Countdown mode and enter 25 minutes. Press Start and focus on one task. When it finishes, add a second timer for your 5-minute break. timer.moe lets you run both side by side so you always know your work time and break time.</p>
+            </details>
+
+            <details class="seo-details">
+              <summary class="seo-summary">Can I sync timers across devices?</summary>
+              <p class="seo-answer">Yes. Sign in with a Google account or email address and your timers sync automatically to Firebase Firestore. Without an account, timers are stored only in your browser's localStorage.</p>
+            </details>
+
+            <details class="seo-details">
+              <summary class="seo-summary">Is timer.moe free?</summary>
+              <p class="seo-answer">Completely free. No subscription, no ads, no paywalled features. Everything works without creating an account.</p>
+            </details>
+
+            <details class="seo-details">
+              <summary class="seo-summary">Does timer.moe work on mobile?</summary>
+              <p class="seo-answer">Yes. The interface is fully responsive and works in any modern mobile browser. You can install timer.moe as a PWA on Android or iOS — use your browser's "Add to Home Screen" option for quick access from your home screen.</p>
+            </details>
+
+          </div>
+        </div>
+
       </div>
-    </div>
+    </section>
   </body>
 </html>

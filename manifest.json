@@ -1,0 +1,34 @@
+{
+  "name": "timer.moe - Focus Timers for Neurodivergent Minds",
+  "short_name": "timer.moe",
+  "description": "Multiple simultaneous timers for ADHD and neurodivergent minds. Pomodoro countdown and stopwatch modes that persist between sessions. Free, no ads.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#e0e7ff",
+  "theme_color": "#6366f1",
+  "categories": ["productivity", "utilities"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/timer-moe-logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/timer-moe-logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot.jpg",
+      "type": "image/jpeg",
+      "label": "timer.moe - multiple simultaneous focus timers"
+    }
+  ]
+}
