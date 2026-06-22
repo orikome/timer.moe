@@ -856,6 +856,12 @@ function timerApp() {
         timer.lastUpdated = null;
       } else {
         // Start
+        if (
+          timer.mode === "countdown" &&
+          timer.elapsed >= timer.duration * 60 * 1000
+        ) {
+          timer.elapsed = 0;
+        }
         timer.isRunning = true;
         timer.lastUpdated = now;
       }
@@ -874,6 +880,7 @@ function timerApp() {
       // Ensure duration is at least 1 minute
       if (timer.duration < 1) timer.duration = 1;
       timer.elapsed = 0;
+      if (timer.isRunning) timer.lastUpdated = Date.now();
       this.saveTimers();
     },
 
@@ -961,7 +968,7 @@ function timerApp() {
 
     playNotification() {
       try {
-        // Add a visual notification in addition to sound
+        // Add a visual notification
         const notificationDuration = 3000;
 
         // Create notification element
@@ -972,14 +979,6 @@ function timerApp() {
 
         // Add to document
         document.body.appendChild(notification);
-
-        // Play sound if available
-        try {
-          const audio = new Audio("notification-sound.mp3");
-          audio.play();
-        } catch (e) {
-          console.log("Could not play notification sound");
-        }
 
         // Remove after duration
         setTimeout(() => {
