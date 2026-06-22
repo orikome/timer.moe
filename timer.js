@@ -48,8 +48,21 @@ function timerApp() {
   return {
     timers: [],
     colors: ['blue', 'green', 'purple', 'pink', 'yellow', 'orange', 'red', 'teal', 'indigo', 'lime'],
+    timerPresets: [
+      { id: 'pomodoro', name: 'Pomodoro', description: '25 minute focus', mode: 'countdown', duration: 25, color: 'red', keywords: 'focus work study productivity 25m' },
+      { id: 'short-break', name: 'Break', description: '5 minute reset', mode: 'countdown', duration: 5, color: 'green', keywords: 'short rest pause coffee 5m' },
+      { id: 'deep-work', name: 'Deep focus', description: '50 minute session', mode: 'countdown', duration: 50, color: 'indigo', keywords: 'deep work focus study 50m' },
+      { id: 'stopwatch', name: 'Stopwatch', description: 'Count up freely', mode: 'stopwatch', duration: 25, color: 'purple', keywords: 'count up open ended track' },
+      { id: 'long-break', name: 'Long break', description: '15 minute recharge', mode: 'countdown', duration: 15, color: 'teal', keywords: 'rest pause recharge 15m' },
+      { id: 'quick-focus', name: 'Focus sprint', description: '10 minute sprint', mode: 'countdown', duration: 10, color: 'blue', keywords: 'quick focus sprint work 10m' },
+    ],
     ticker: 0,
     isDarkMode: false,
+    expandedTimerId: null,
+    showTimerPicker: false,
+    pickerQuery: '',
+    activePickerIndex: 0,
+    pickerReturnFocus: null,
     
     // Firebase auth state
     user: null,
@@ -60,7 +73,7 @@ function timerApp() {
     authError: '',
     lastSyncTimestamp: 0, // Track when data was last synced
     isSyncing: false, // Track when we're loading data from Firestore
-    isInitializing: true, // Block UI until auth state is resolved
+    isInitializing: false,
     firebaseReady: false,
 
     init() {
@@ -82,6 +95,10 @@ function timerApp() {
         if (document.visibilityState === "visible") {
           this.updateTimersOnResume();
         }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        this.handleGlobalTyping(event);
       });
     },
 
@@ -176,10 +193,9 @@ function timerApp() {
           // Delete the user account
           await firebase.deleteUser(user);
           this.showSyncModal = false;
-          // Clear local timers and reload defaults
+          // Clear local timers and return to the Quick Start empty state
           this.timers = [];
           localStorage.removeItem('timers');
-          this.addTimer();
         }
       } catch (error) {
         console.error('Error deleting account:', error);
@@ -268,10 +284,6 @@ function timerApp() {
         }
       }
 
-      // Add a default timer if none exists
-      if (!this.timers.length) {
-        this.addTimer();
-      }
     },
 
     async saveTimers() {
@@ -381,17 +393,181 @@ function timerApp() {
       }
     },
 
-    addTimer() {
+    parseQuickStart(value) {
+      const rawValue = value.trim();
+      const durationPattern = /\b(\d+(?:\.\d+)?)\s*(hours?|hrs?|hr|h|minutes?|mins?|min|m)\b/gi;
+      let duration = 0;
+      let hasDuration = false;
+
+      const name = rawValue
+        .replace(durationPattern, (match, amount, unit) => {
+          const numericAmount = Number.parseFloat(amount);
+          const normalizedUnit = unit.toLowerCase();
+          duration += normalizedUnit.startsWith('h')
+            ? numericAmount * 60
+            : numericAmount;
+          hasDuration = true;
+          return ' ';
+        })
+        .replace(/\s+/g, ' ')
+        .replace(/^[\s,;:\-–—]+|[\s,;:\-–—]+$/g, '')
+        .trim();
+
+      return {
+        name,
+        mode: hasDuration ? 'countdown' : 'stopwatch',
+        duration: hasDuration ? Math.max(1, duration) : 25,
+      };
+    },
+
+    presetBadge(preset) {
+      return preset.mode === 'countdown'
+        ? this.formatDuration(preset.duration)
+        : '∞';
+    },
+
+    pickerResults() {
+      const query = this.pickerQuery.trim();
+      const normalizedQuery = query.toLowerCase();
+      const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+      const matchingPresets = this.timerPresets.filter((preset) => {
+        if (!terms.length) return true;
+        const searchableText = `${preset.name} ${preset.description} ${preset.keywords}`.toLowerCase();
+        return terms.every((term) => searchableText.includes(term));
+      });
+
+      const results = matchingPresets.map((preset) => ({
+        ...preset,
+        resultType: 'preset',
+      }));
+
+      const isExactPreset = matchingPresets.some(
+        (preset) => preset.name.toLowerCase() === normalizedQuery,
+      );
+
+      if (query && !isExactPreset) {
+        const customTimer = this.parseQuickStart(query);
+        const customName = customTimer.name || `${this.formatDuration(customTimer.duration)} timer`;
+        const customResult = {
+          ...customTimer,
+          id: `custom-${normalizedQuery}`,
+          name: `Create “${customName}”`,
+          timerName: customName,
+          description: customTimer.mode === 'countdown'
+            ? `${this.formatDuration(customTimer.duration)} countdown`
+            : 'Open-ended stopwatch',
+          color: 'purple',
+          resultType: 'custom',
+        };
+
+        if (results.length) {
+          results.push(customResult);
+        } else {
+          results.unshift(customResult);
+        }
+      }
+
+      return results.slice(0, 7);
+    },
+
+    openTimerPicker(initialQuery = '') {
+      this.pickerReturnFocus = document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+      this.pickerQuery = initialQuery;
+      this.activePickerIndex = 0;
+      this.showTimerPicker = true;
+      document.body.classList.add('modal-open');
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          this.$refs.timerSearch?.focus({ preventScroll: true });
+        });
+      });
+    },
+
+    closeTimerPicker() {
+      const returnFocus = this.pickerReturnFocus;
+      this.showTimerPicker = false;
+      this.pickerQuery = '';
+      this.activePickerIndex = 0;
+      this.pickerReturnFocus = null;
+      document.body.classList.remove('modal-open');
+      this.$nextTick(() => {
+        if (returnFocus?.isConnected && returnFocus !== document.body) {
+          returnFocus.focus();
+        }
+      });
+    },
+
+    handleGlobalTyping(event) {
+      if (
+        this.showTimerPicker ||
+        this.showSyncModal ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey
+      ) return;
+
+      const target = event.target;
+      const isTextInput = target instanceof HTMLElement && (
+        target.matches('input, textarea, select') || target.isContentEditable
+      );
+      if (isTextInput) return;
+
+      if (event.key === '/') {
+        event.preventDefault();
+        this.openTimerPicker();
+        return;
+      }
+
+      if (event.key.length === 1 && event.key.trim()) {
+        event.preventDefault();
+        this.openTimerPicker(event.key);
+      }
+    },
+
+    movePickerSelection(direction) {
+      const results = this.pickerResults();
+      if (!results.length) return;
+      this.activePickerIndex = (
+        this.activePickerIndex + direction + results.length
+      ) % results.length;
+    },
+
+    chooseActivePickerResult() {
+      const results = this.pickerResults();
+      const result = results[this.activePickerIndex] || results[0];
+      if (result) this.selectPickerResult(result);
+    },
+
+    selectPickerResult(result) {
+      this.addTimer({
+        name: result.resultType === 'custom'
+          ? result.timerName
+          : result.name,
+        mode: result.mode,
+        duration: result.duration,
+        color: result.color,
+        autoStart: true,
+      });
+      this.closeTimerPicker();
+    },
+
+    addPresetTimer(preset) {
+      this.addTimer({ ...preset, autoStart: true });
+    },
+
+    addTimer({ name = '', mode = 'stopwatch', duration = 25, color = null, autoStart = false } = {}) {
       const now = Date.now();
       const newTimer = {
-        id: now.toString(),
-        name: "",
-        mode: "stopwatch", 
-        duration: 25,
-        color: this.colors[Math.floor(Math.random() * this.colors.length)],
-        isRunning: true, // Auto-start the timer
+        id: `${now}-${Math.random().toString(36).slice(2, 8)}`,
+        name,
+        mode,
+        duration,
+        color: color || this.colors[this.timers.length % this.colors.length],
+        isRunning: autoStart,
         elapsed: 0,
-        lastUpdated: now, // Set the lastUpdated to now for auto-start
+        lastUpdated: autoStart ? now : null,
       };
 
       this.timers.push(newTimer);
@@ -399,15 +575,29 @@ function timerApp() {
     },
 
     removeTimer(index) {
+      if (this.expandedTimerId === this.timers[index]?.id) {
+        this.expandedTimerId = null;
+      }
       this.timers.splice(index, 1);
       this.saveTimers();
     },
 
-    toggleMode(timer) {
-      timer.mode = timer.mode === "countdown" ? "stopwatch" : "countdown";
+    toggleTimerSettings(timer) {
+      this.expandedTimerId = this.expandedTimerId === timer.id ? null : timer.id;
+    },
+
+    setTimerMode(timer, mode) {
+      if (timer.mode === mode) return;
+
+      timer.mode = mode;
       timer.isRunning = false;
       timer.elapsed = 0;
       timer.lastUpdated = null;
+      this.saveTimers();
+    },
+
+    setTimerColor(timer, color) {
+      timer.color = color;
       this.saveTimers();
     },
 
@@ -442,6 +632,16 @@ function timerApp() {
       if (timer.duration < 1) timer.duration = 1;
       timer.elapsed = 0;
       this.saveTimers();
+    },
+
+    formatDuration(duration) {
+      const totalMinutes = Number(duration) || 0;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = Number((totalMinutes % 60).toFixed(2));
+
+      if (hours && minutes) return `${hours}h ${minutes}m`;
+      if (hours) return `${hours}h`;
+      return `${minutes}m`;
     },
 
     startTimerUpdates() {

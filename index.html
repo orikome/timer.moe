@@ -196,7 +196,7 @@
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"
     ></script>
-    <link rel="stylesheet" href="tailwind.css" />
+    <link rel="stylesheet" href="tailwind.css?v=5" />
 
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -312,21 +312,32 @@
       </div>
     </noscript>
     <div x-data="timerApp()" class="max-w-4xl mx-auto">
-      <!-- Main app content — disabled while syncing -->
-      <div
-        :class="(isInitializing || isSyncing) ? 'app-disabled' : 'app-enabled'"
-      >
-        <!-- Header with About button -->
-        <div class="flex items-center justify-between mb-8 fade-in-up">
-          <h1 class="text-3xl font-semibold tracking-tight">
+      <!-- Main app content remains interactive while sync works in the background -->
+      <div>
+        <!-- Three-part app navigation -->
+        <header class="app-header mb-6 fade-in-up">
+          <h1 class="app-brand text-3xl font-semibold tracking-tight whitespace-nowrap">
             <span class="text-gray-700 dark:text-gray-200">timer</span
             ><img
               src="timer-moe-logo.svg"
-              alt="timer.moe logo"
+              alt=""
+              aria-hidden="true"
               class="inline align-bottom w-5 h-5 mx-0.5"
             /><span class="text-gray-700 dark:text-gray-200">moe</span>
           </h1>
-          <div class="flex space-x-2">
+
+          <button
+            type="button"
+            @click="openTimerPicker()"
+            class="nav-quick-add"
+            aria-label="Quick add a timer"
+          >
+            <span class="material-icons md-20" aria-hidden="true">add</span>
+            <span class="nav-quick-add-label">Quick add</span>
+            <kbd>/</kbd>
+          </button>
+
+          <div class="app-header-actions">
             <!-- Sync button -->
             <button
               @click="openSyncModal()"
@@ -338,7 +349,7 @@
                 class="material-icons md-20"
                 x-text="user ? 'cloud_done' : 'cloud_off'"
               ></span>
-              <span x-text="user ? 'Synced' : 'Sync'"></span>
+              <span class="hidden sm:inline" x-text="user ? 'Synced' : 'Sync'"></span>
             </button>
             <!-- Theme toggle button -->
             <button
@@ -350,14 +361,14 @@
                 class="material-icons md-20"
                 x-text="isDarkMode ? 'light_mode' : 'dark_mode'"
               ></span>
-              <span x-text="isDarkMode ? 'Light' : 'Dark'"></span>
+              <span class="hidden sm:inline" x-text="isDarkMode ? 'Light' : 'Dark'"></span>
             </button>
           </div>
-        </div>
+        </header>
 
-        <!-- Timer Cards -->
+        <!-- Timer cards -->
         <div
-          class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8 fade-in-up fade-in-up-delay-1"
+          class="grid grid-cols-1 md:grid-cols-2 items-start gap-5 mb-6 fade-in-up fade-in-up-delay-1"
         >
           <template x-for="(timer, index) in timers" :key="timer.id">
             <div
@@ -378,97 +389,149 @@
 
               <!-- Content wrapper with z-index -->
               <div class="relative z-10">
-                <!-- Close Button (X in corner) -->
-                <button
-                  @click="removeTimer(index)"
-                  class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/50 dark:bg-white/10 dark:hover:bg-white/20 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all timer-close-btn"
-                  aria-label="Remove timer"
-                >
-                  <span class="material-icons md-18">close</span>
-                </button>
-
                 <!-- Timer Header -->
-                <div class="flex flex-col items-center mb-3">
-                  <input
-                    type="text"
-                    x-model="timer.name"
-                    @change="saveTimers()"
-                    class="bg-transparent font-medium text-xl text-center timer-name-input px-2 py-1 max-w-full dark:text-gray-100"
-                    :placeholder="`Timer ${index + 1}`"
-                  />
-
-                  <!-- Color Selector -->
-                  <div class="flex space-x-2.5 mt-2.5">
-                    <template x-for="color in colors" :key="color">
-                      <button
-                        @click="timer.color = color; saveTimers()"
-                        :class="`w-5 h-5 rounded-full hover:scale-125 transition-all color-selector-${color} ${timer.color === color ? 'ring-2 ring-slate-600 dark:ring-slate-300 ring-offset-1' : ''}`"
-                        :aria-label="`Select ${color} color`"
-                      ></button>
-                    </template>
+                <div class="timer-card-header">
+                  <div class="timer-title-group">
+                    <input
+                      type="text"
+                      x-model="timer.name"
+                      @change="saveTimers()"
+                      class="bg-transparent font-medium text-xl timer-name-input"
+                      :placeholder="`Timer ${index + 1}`"
+                      :aria-label="`Timer ${index + 1} name`"
+                    />
+                    <span
+                      class="timer-mode-label"
+                      x-text="timer.mode === 'countdown' ? `${formatDuration(timer.duration)} countdown` : 'Stopwatch'"
+                    ></span>
                   </div>
+                  <button
+                    type="button"
+                    @click="toggleTimerSettings(timer)"
+                    class="timer-settings-toggle"
+                    :class="{'is-active': expandedTimerId === timer.id}"
+                    :aria-expanded="expandedTimerId === timer.id"
+                    :aria-label="`${expandedTimerId === timer.id ? 'Close' : 'Open'} settings for ${timer.name || `Timer ${index + 1}`}`"
+                  >
+                    <span class="material-icons md-20" aria-hidden="true">tune</span>
+                  </button>
                 </div>
 
                 <!-- Timer Display -->
-                <div class="text-center py-3">
+                <div class="text-center py-4">
                   <div
                     class="text-5xl font-mono font-semibold timer-display text-slate-800 dark:text-gray-100"
                     x-text="formatTime(timer)"
+                    role="timer"
+                    :aria-label="`${timer.name || `Timer ${index + 1}`}: ${formatTime(timer)}`"
                   ></div>
                 </div>
 
-                <!-- Timer Controls -->
-                <div
-                  class="flex flex-wrap items-center justify-between gap-3 mt-3"
-                >
-                  <!-- Mode Toggle with icon -->
+                <!-- Primary action -->
+                <div class="mt-2">
                   <button
-                    @click="toggleMode(timer)"
-                    class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
+                    type="button"
+                    @click="toggleTimer(timer)"
+                    class="timer-primary-action"
+                    :aria-label="`${timer.isRunning ? 'Pause' : 'Start'} ${timer.name || `Timer ${index + 1}`}`"
                   >
                     <span
-                      class="material-icons md-20"
-                      x-text="timer.mode === 'countdown' ? 'timer' : 'timer_off'"
+                      class="material-icons"
+                      aria-hidden="true"
+                      x-text="timer.isRunning ? 'pause_circle' : 'play_circle'"
                     ></span>
                     <span
-                      x-text="timer.mode === 'countdown' ? 'Countdown' : 'Stopwatch'"
+                      x-text="timer.isRunning ? 'Pause' : 'Start'"
                     ></span>
                   </button>
+                </div>
 
-                  <!-- Countdown Duration (only for countdown mode) -->
-                  <template x-if="timer.mode === 'countdown'">
-                    <div class="flex items-center">
+                <!-- Secondary settings -->
+                <div
+                  x-show="expandedTimerId === timer.id"
+                  x-cloak
+                  class="timer-settings-panel"
+                  x-transition:enter="transition ease-out duration-200"
+                  x-transition:enter-start="opacity-0 -translate-y-1"
+                  x-transition:enter-end="opacity-100 translate-y-0"
+                  x-transition:leave="transition ease-in duration-150"
+                  x-transition:leave-start="opacity-100 translate-y-0"
+                  x-transition:leave-end="opacity-0 -translate-y-1"
+                >
+                  <div class="timer-setting-row">
+                    <span class="timer-setting-label">Type</span>
+                    <div class="settings-segment" role="group" aria-label="Timer type">
+                      <button
+                        type="button"
+                        @click="setTimerMode(timer, 'stopwatch')"
+                        class="settings-segment-button"
+                        :class="{'is-active': timer.mode === 'stopwatch'}"
+                        :aria-pressed="timer.mode === 'stopwatch'"
+                      >
+                        Stopwatch
+                      </button>
+                      <button
+                        type="button"
+                        @click="setTimerMode(timer, 'countdown')"
+                        class="settings-segment-button"
+                        :class="{'is-active': timer.mode === 'countdown'}"
+                        :aria-pressed="timer.mode === 'countdown'"
+                      >
+                        Countdown
+                      </button>
+                    </div>
+                  </div>
+
+                  <div x-show="timer.mode === 'countdown'" class="timer-setting-row">
+                    <label class="timer-setting-label" :for="`duration-${timer.id}`">Duration</label>
+                    <div class="flex items-center gap-2">
                       <input
+                        :id="`duration-${timer.id}`"
                         type="number"
                         x-model.number="timer.duration"
                         @change="updateDuration(timer)"
-                        class="w-14 duration-input rounded-xl px-2 py-1.5 text-center text-sm"
+                        class="w-20 duration-input rounded-xl px-3 py-2 text-center text-sm"
                         min="1"
+                        step="1"
                       />
-                      <span class="ml-1 text-sm">min</span>
+                      <span class="text-sm font-medium">min</span>
                     </div>
-                  </template>
+                  </div>
 
-                  <!-- Main Controls with icons -->
-                  <div class="flex space-x-2">
-                    <!-- Toggle button (Start/Pause) -->
-                    <button
-                      @click="toggleTimer(timer)"
-                      class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
-                      :class="{'bg-red-50 hover:bg-red-100': timer.isRunning, 'bg-green-50 hover:bg-green-100': !timer.isRunning}"
-                    >
-                      <span
-                        class="material-icons"
-                        x-text="timer.isRunning ? 'pause_circle' : 'play_circle'"
-                      ></span>
-                    </button>
+                  <div>
+                    <span class="timer-setting-label block mb-2">Colour</span>
+                    <div class="timer-color-grid">
+                      <template x-for="color in colors" :key="color">
+                        <button
+                          type="button"
+                          @click="setTimerColor(timer, color)"
+                          class="color-option"
+                          :class="{'is-selected': timer.color === color}"
+                          :aria-label="`Use ${color}`"
+                          :aria-pressed="timer.color === color"
+                        >
+                          <span :class="`color-option-swatch color-selector-${color}`"></span>
+                        </button>
+                      </template>
+                    </div>
+                  </div>
 
-                    <!-- Reset button -->
+                  <div class="timer-settings-actions">
                     <button
+                      type="button"
                       @click="resetTimer(timer)"
-                      class="timer-button px-4 py-2 rounded-xl text-sm font-medium icon-button"
+                      class="timer-secondary-action"
                     >
-                      <span class="material-icons">restart_alt</span>
+                      <span class="material-icons md-20" aria-hidden="true">restart_alt</span>
+                      Reset
+                    </button>
+                    <button
+                      type="button"
+                      @click="removeTimer(index)"
+                      class="timer-delete-action"
+                    >
+                      <span class="material-icons md-20" aria-hidden="true">delete_outline</span>
+                      Delete
                     </button>
                   </div>
                 </div>
@@ -477,72 +540,80 @@
           </template>
         </div>
 
-        <!-- Add Timer Button -->
-        <div class="text-center fade-in-up fade-in-up-delay-2">
-          <button
-            @click="addTimer()"
-            class="add-button px-6 py-3 rounded-2xl font-medium text-base transition-all inline-flex items-center justify-center"
-          >
-            <span class="material-icons mr-2 md-20">add_circle</span>
-            <span>Add Timer</span>
-          </button>
+        <div x-show="timers.length === 0" x-cloak class="timer-empty-state fade-in-up fade-in-up-delay-1">
+          <p>No timers yet</p>
+          <span>Use Quick add above, press <kbd>/</kbd>, or simply start typing.</span>
         </div>
       </div>
-      <!-- end app-disabled/app-enabled wrapper -->
 
-      <!-- Syncing / Initializing Overlay -->
+      <!-- On-demand timer picker -->
       <div
-        x-show="isInitializing || isSyncing"
-        class="fixed inset-0 z-50 flex items-center justify-center"
+        x-show="showTimerPicker"
         x-cloak
+        class="timer-picker-layer"
+        @keydown.escape.window="closeTimerPicker()"
       >
-        <!-- Backdrop -->
+        <div class="timer-picker-backdrop" @click="closeTimerPicker()"></div>
         <div
-          class="absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm"
-          x-transition:enter="transition ease-out duration-300"
-          x-transition:enter-start="opacity-0"
-          x-transition:enter-end="opacity-100"
-          x-transition:leave="transition ease-in duration-200"
-          x-transition:leave-start="opacity-100"
-          x-transition:leave-end="opacity-0"
-        ></div>
-
-        <!-- Loading Content -->
-        <div
-          class="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-8 shadow-2xl text-center border border-white/40 dark:border-white/10"
-          x-transition:enter="transition ease-out duration-300"
-          x-transition:enter-start="opacity-0 transform scale-95"
-          x-transition:enter-end="opacity-100 transform scale-100"
-          x-transition:leave="transition ease-in duration-200"
-          x-transition:leave-start="opacity-100 transform scale-100"
-          x-transition:leave-end="opacity-0 transform scale-95"
+          class="timer-picker"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Add a timer"
+          x-transition:enter="timer-picker-enter"
+          x-transition:enter-start="timer-picker-enter-start"
+          x-transition:leave="timer-picker-leave"
+          x-transition:leave-end="timer-picker-leave-end"
         >
-          <div class="flex flex-col items-center space-y-4">
-            <!-- Spinner -->
-            <div class="sync-spinner">
-              <span
-                class="material-icons text-purple-500 dark:text-purple-400"
-                style="font-size: 40px"
-                >sync</span
+          <div class="timer-picker-search">
+            <span class="material-icons" aria-hidden="true">search</span>
+            <label for="timer-search" class="sr-only">Search timer presets or create a custom timer</label>
+            <input
+              id="timer-search"
+              x-ref="timerSearch"
+              type="text"
+              x-model="pickerQuery"
+              @input="activePickerIndex = 0"
+              @keydown.arrow-down.prevent="movePickerSelection(1)"
+              @keydown.arrow-up.prevent="movePickerSelection(-1)"
+              @keydown.enter.prevent="chooseActivePickerResult()"
+              placeholder="Search presets or type “Tea 4m”"
+              autocomplete="off"
+            />
+            <kbd>esc</kbd>
+          </div>
+
+          <div class="timer-picker-results" role="listbox" aria-label="Timer suggestions">
+            <template x-for="(result, index) in pickerResults()" :key="result.id">
+              <button
+                type="button"
+                class="timer-picker-result"
+                :class="{'is-active': activePickerIndex === index}"
+                @mouseenter="activePickerIndex = index"
+                @click="selectPickerResult(result)"
+                role="option"
+                :aria-selected="activePickerIndex === index"
               >
-            </div>
-            <div>
-              <h3
-                class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1"
-              >
-                Syncing your timers
-              </h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                Just a moment...
-              </p>
-            </div>
+                <span class="timer-picker-result-badge" aria-hidden="true" x-text="presetBadge(result)"></span>
+                <span class="timer-picker-result-copy">
+                  <strong x-text="result.name"></strong>
+                  <small x-text="result.description"></small>
+                </span>
+                <span class="timer-picker-result-enter material-icons md-20" aria-hidden="true">keyboard_return</span>
+              </button>
+            </template>
+          </div>
+
+          <div class="timer-picker-footer">
+            <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+            <span><kbd>↵</kbd> start</span>
+            <span>Type a duration for a custom countdown</span>
           </div>
         </div>
       </div>
 
       <!-- Sync Modal -->
       <div
-        x-show="showSyncModal && !isInitializing && !isSyncing"
+        x-show="showSyncModal"
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
         x-cloak
       >
