@@ -418,7 +418,7 @@ function timerApp() {
           return ' ';
         })
         .replace(/\s+/g, ' ')
-        .replace(/^[\s,;:\-–—]+|[\s,;:\-–—]+$/g, '')
+        .replace(/^[\s,;:\-–\u2014]+|[\s,;:\-–\u2014]+$/g, '')
         .trim();
 
       return {

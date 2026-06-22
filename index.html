@@ -296,10 +296,10 @@
     <noscript>
       <div style="max-width:800px;margin:0 auto;padding:2rem;font-family:Inter,system-ui,sans-serif;color:#1e293b">
         <h1 style="font-size:2rem;font-weight:600;margin-bottom:0.5rem">timer.moe</h1>
-        <p style="font-size:1.1rem;margin-bottom:1.5rem">Free focus timers for ADHD and neurodivergent minds. Run multiple Pomodoro countdown and stopwatch timers simultaneously — timers keep tracking even when you close the tab.</p>
+        <p style="font-size:1.1rem;margin-bottom:1.5rem">Free focus timers for ADHD and neurodivergent minds. Run multiple Pomodoro countdown and stopwatch timers simultaneously; timers keep tracking even when you close the tab.</p>
         <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.75rem">Features</h2>
         <ul style="margin-bottom:1.5rem;padding-left:1.5rem;line-height:2">
-          <li>Multiple simultaneous timers — run as many as you need</li>
+          <li>Multiple simultaneous timers: run as many as you need</li>
           <li>Pomodoro countdown mode and open-ended stopwatch mode</li>
           <li>Timers persist when you close or switch browser tabs</li>
           <li>Timers saved between sessions via localStorage</li>
@@ -330,10 +330,13 @@
             type="button"
             @click="openTimerPicker()"
             class="nav-quick-add"
-            aria-label="Quick add a timer"
+            aria-label="Create a timer. Try Tea 4 minutes. No duration creates a stopwatch."
           >
-            <span class="material-icons md-20" aria-hidden="true">add</span>
-            <span class="nav-quick-add-label">Quick add</span>
+            <span class="material-icons md-20 nav-quick-add-icon" aria-hidden="true">keyboard</span>
+            <span class="nav-quick-add-label">
+              <span class="nav-quick-add-primary">Create a timer: try “Tea 4m”</span>
+              <span class="nav-quick-add-hint">No duration = stopwatch</span>
+            </span>
             <kbd>/</kbd>
           </button>
 
@@ -846,8 +849,8 @@
         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5 mb-7">
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xl">
             <strong class="font-medium text-gray-600 dark:text-gray-300">timer.moe</strong>
-            is a free productivity timer for ADHD and neurodivergent minds. Run multiple Pomodoro and stopwatch timers simultaneously
-            — timers keep tracking even when you close the tab. No account needed.
+            is a free productivity timer for ADHD and neurodivergent minds. Run multiple Pomodoro and stopwatch timers simultaneously.
+            They keep tracking even when you close the tab. No account needed.
           </p>
           <div class="flex flex-wrap gap-2 shrink-0">
             <a
@@ -874,7 +877,7 @@
           <summary class="seo-summary">Features</summary>
           <ul class="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-500 dark:text-gray-400 mt-3 mb-2 pl-1">
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Multiple simultaneous timers in a single tab</li>
-            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Pomodoro countdown mode — set any duration in minutes</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Pomodoro countdown mode: set any duration in minutes</li>
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Stopwatch mode for open-ended focus sessions</li>
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Timers keep tracking when you close or switch tabs</li>
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Timer state saved between browser sessions</li>
@@ -882,7 +885,7 @@
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Colour-coded cards for visual task separation</li>
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Dark mode and light mode</li>
             <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Animated progress bar on countdown timers</li>
-            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Completely free — no subscription, no ads</li>
+            <li class="flex items-start gap-2"><span class="text-indigo-400 shrink-0">✓</span> Completely free, with no subscription or ads</li>
           </ul>
         </details>
 
@@ -893,7 +896,7 @@
 
             <details class="seo-details">
               <summary class="seo-summary">Do timers keep running when I close the tab?</summary>
-              <p class="seo-answer">Yes. timer.moe records timestamps rather than counting in real time, so when you return the timer shows the correct elapsed time — as if it never stopped. This works even after closing the browser, as long as the timer was saved to localStorage.</p>
+              <p class="seo-answer">Yes. timer.moe records timestamps rather than counting in real time, so when you return the timer shows the correct elapsed time, as if it never stopped. This works even after closing the browser, as long as the timer was saved to localStorage.</p>
             </details>
 
             <details class="seo-details">
@@ -918,7 +921,7 @@
 
             <details class="seo-details">
               <summary class="seo-summary">Does timer.moe work on mobile?</summary>
-              <p class="seo-answer">Yes. The interface is fully responsive and works in any modern mobile browser. You can install timer.moe as a PWA on Android or iOS — use your browser's "Add to Home Screen" option for quick access from your home screen.</p>
+              <p class="seo-answer">Yes. The interface is fully responsive and works in any modern mobile browser. You can install timer.moe as a PWA on Android or iOS. Use your browser's "Add to Home Screen" option for quick access from your home screen.</p>
             </details>
 
           </div>
