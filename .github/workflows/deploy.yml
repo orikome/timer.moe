@@ -9,7 +9,14 @@ on:
       - 'index.html'
       - 'timer.js'
       - 'styles.css'
+      - 'tailwind.css'
+      - 'tailwind.input.css'
+      - 'tailwind.config.js'
+      - 'package.json'
+      - 'package-lock.json'
       - 'CNAME'
+      - 'screenshot.jpg'
+      - 'timer-moe-logo.svg'
       - 'robots.txt'
       - 'sitemap.xml'
       - 'manifest.json'
@@ -42,18 +49,18 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Install minifiers
-        run: |
-          npm install -g terser
-          npm install -g csso-cli
-          npm install -g html-minifier-terser
+      - name: Install build tools
+        run: npm ci
       
       - name: Create build directory
         run: mkdir -p build
+
+      - name: Build Tailwind CSS
+        run: npm run build:css
       
       - name: Minify HTML
         run: |
-          html-minifier-terser \
+          npx --no-install html-minifier-terser \
             --collapse-whitespace \
             --remove-comments \
             --minify-css true \
@@ -61,16 +68,17 @@ jobs:
             index.html -o build/index.html
       
       - name: Minify JavaScript
-        run: terser timer.js -o build/timer.js -c -m
+        run: npx --no-install terser timer.js -o build/timer.js -c -m
       
       - name: Minify CSS
-        run: csso styles.css -o build/styles.css
+        run: npx --no-install csso styles.css -o build/styles.css
       
       - name: Copy other files
         run: |
           if [ -f CNAME ]; then cp CNAME build/; fi
           if [ -f LICENSE ]; then cp LICENSE build/; fi
           if [ -f README.md ]; then cp README.md build/; fi
+          if [ -f tailwind.css ]; then cp tailwind.css build/; fi
           # Copy any other assets (images, fonts, etc.)
           if [ -f screenshot.jpg ]; then cp screenshot.jpg build/; fi
           # Copy SVG files

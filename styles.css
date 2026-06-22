@@ -36,6 +36,10 @@
   --dark-add-button-text: #a78bfa;
 }
 
+[x-cloak] {
+  display: none !important;
+}
+
 /* ─── Timer card backgrounds — vibrant light mode ─── */
 .timer-bg-blue    { background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%); }
 .timer-bg-green   { background: linear-gradient(135deg, #34d399 0%, #6ee7b7 100%); }
@@ -277,57 +281,11 @@
   opacity: 0;
 }
 
-.modal-transition-enter-active,
-.modal-transition-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.modal-transition-enter-from,
-.modal-transition-leave-to {
-  opacity: 0;
-  transform: scale(0.95) translateY(8px);
-}
-
 /* ─── Icon with text layout ─── */
 .icon-with-text {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-/* ─── Auth form inputs ─── */
-.auth-input {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  transition: all 0.25s ease;
-}
-
-.auth-input:focus {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(139, 110, 191, 0.4);
-  box-shadow: 0 0 0 3px rgba(139, 110, 191, 0.1);
-}
-
-.dark .auth-input {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: var(--text-light);
-}
-
-.dark .auth-input:focus {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(195, 177, 225, 0.4);
-  box-shadow: 0 0 0 3px rgba(195, 177, 225, 0.1);
-}
-
-/* ─── Sync status indicator ─── */
-.sync-status {
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
 }
 
 /* ─── Sync overlay spinner ─── */
@@ -358,7 +316,6 @@
 
 .fade-in-up-delay-1 { animation-delay: 0.05s; }
 .fade-in-up-delay-2 { animation-delay: 0.1s; }
-.fade-in-up-delay-3 { animation-delay: 0.15s; }
 
 /* ─── Timer display ─── */
 .timer-display {

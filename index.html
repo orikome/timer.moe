@@ -191,19 +191,12 @@
       }
     </script>
 
-    <!-- Alpine.js and Tailwind CSS via CDN (no build step) -->
+    <!-- Alpine.js and compiled Tailwind CSS -->
     <script
       defer
-      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.12/dist/cdn.min.js"
     ></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Tailwind configuration for dark mode -->
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-      };
-    </script>
+    <link rel="stylesheet" href="tailwind.css" />
 
     <!-- Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -221,31 +214,6 @@
 
     <!-- Custom CSS with color variables -->
     <link rel="stylesheet" href="styles.css" />
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-    <!-- Firebase Configuration -->
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyAEkssyAcMY6FRqj8pbwG__IYrNilTSqdA",
-        authDomain: "timer-moe.firebaseapp.com",
-        projectId: "timer-moe",
-        storageBucket: "timer-moe.firebasestorage.app",
-        messagingSenderId: "139426577834",
-        appId: "1:139426577834:web:e95afbfce11d386b313fd3",
-        measurementId: "G-7K49NDECM1",
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-
-      // Initialize Firebase services
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-    </script>
 
     <!-- Our timer application script -->
     <script src="timer.js"></script>
@@ -361,7 +329,7 @@
           <div class="flex space-x-2">
             <!-- Sync button -->
             <button
-              @click="showSyncModal = true"
+              @click="openSyncModal()"
               class="timer-button px-3 py-2 rounded-xl text-sm icon-with-text"
               :class="{'bg-green-50/60 dark:bg-green-900/20': user}"
               aria-label="Sync timers across devices"

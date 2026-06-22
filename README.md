@@ -11,3 +11,7 @@ Tired of juggling 5 different timer tabs? Or losing your workout timer because y
 * Multiple simultaneous timers
 * Background tracking (continues when tabs are closed)
 * Pomodoro countdown and stopwatch modes
+
+## Development
+
+Run `npm ci` once, then `npm run build:css` after changing Tailwind utility classes. The generated `tailwind.css` is committed so the site can still be previewed as a simple static site.

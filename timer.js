@@ -1,9 +1,54 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyAEkssyAcMY6FRqj8pbwG__IYrNilTSqdA",
+  authDomain: "timer-moe.firebaseapp.com",
+  projectId: "timer-moe",
+  storageBucket: "timer-moe.firebasestorage.app",
+  messagingSenderId: "139426577834",
+  appId: "1:139426577834:web:e95afbfce11d386b313fd3",
+};
+
+let firebaseLoadPromise;
+
+async function loadFirebase() {
+  if (!firebaseLoadPromise) {
+    firebaseLoadPromise = (async () => {
+      const [app, auth, firestore] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),
+        import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"),
+      ]);
+      const firebaseApp = app.initializeApp(firebaseConfig);
+
+      return {
+        auth: auth.getAuth(firebaseApp),
+        db: firestore.getFirestore(firebaseApp),
+        GoogleAuthProvider: auth.GoogleAuthProvider,
+        createUserWithEmailAndPassword: auth.createUserWithEmailAndPassword,
+        deleteDoc: firestore.deleteDoc,
+        deleteUser: auth.deleteUser,
+        doc: firestore.doc,
+        getDoc: firestore.getDoc,
+        onAuthStateChanged: auth.onAuthStateChanged,
+        serverTimestamp: firestore.serverTimestamp,
+        setDoc: firestore.setDoc,
+        signInWithEmailAndPassword: auth.signInWithEmailAndPassword,
+        signInWithPopup: auth.signInWithPopup,
+        signOut: auth.signOut,
+      };
+    })().catch((error) => {
+      firebaseLoadPromise = undefined;
+      throw error;
+    });
+  }
+
+  return firebaseLoadPromise;
+}
+
 function timerApp() {
   return {
     timers: [],
     colors: ['blue', 'green', 'purple', 'pink', 'yellow', 'orange', 'red', 'teal', 'indigo', 'lime'],
     ticker: 0,
-    showAbout: false,
     isDarkMode: false,
     
     // Firebase auth state
@@ -16,6 +61,7 @@ function timerApp() {
     lastSyncTimestamp: 0, // Track when data was last synced
     isSyncing: false, // Track when we're loading data from Firestore
     isInitializing: true, // Block UI until auth state is resolved
+    firebaseReady: false,
 
     init() {
       // Check if user was previously logged in to show sync overlay immediately
@@ -27,15 +73,10 @@ function timerApp() {
       this.loadThemePreference();
       this.startTimerUpdates();
       
-      // Then initialize Firebase auth listener
-      this.initFirebaseAuth();
-
-      setInterval(() => {
-        if (this.timers.some((t) => t.isRunning)) {
-          this.ticker++;
-        }
-        this.updateTitle();
-      }, 500);
+      // Only load Firebase automatically for returning signed-in users.
+      if (wasLoggedIn) {
+        this.initFirebaseAuth();
+      }
 
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") {
@@ -44,9 +85,16 @@ function timerApp() {
       });
     },
 
-    initFirebaseAuth() {
-      if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().onAuthStateChanged(async (user) => {
+    async initFirebaseAuth() {
+      if (this.firebaseReady) return;
+
+      this.isInitializing = true;
+
+      try {
+        const firebase = await loadFirebase();
+        this.firebaseReady = true;
+
+        firebase.onAuthStateChanged(firebase.auth, async (user) => {
           this.user = user;
           if (user) {
             localStorage.setItem('wasLoggedIn', 'true');
@@ -57,16 +105,24 @@ function timerApp() {
           }
           this.isInitializing = false;
         });
-      } else {
+      } catch (error) {
+        console.error('Error loading Firebase:', error);
+        this.authError = 'Sync is temporarily unavailable. Please try again.';
         this.isInitializing = false;
       }
+    },
+
+    openSyncModal() {
+      this.showSyncModal = true;
+      this.initFirebaseAuth();
     },
 
     async loginWithGoogle() {
       try {
         this.authError = '';
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await firebase.auth().signInWithPopup(provider);
+        const firebase = await loadFirebase();
+        const provider = new firebase.GoogleAuthProvider();
+        await firebase.signInWithPopup(firebase.auth, provider);
         this.showSyncModal = false;
         this.clearLoginForm();
       } catch (error) {
@@ -77,7 +133,8 @@ function timerApp() {
     async loginWithEmail() {
       try {
         this.authError = '';
-        await firebase.auth().signInWithEmailAndPassword(this.loginEmail, this.loginPassword);
+        const firebase = await loadFirebase();
+        await firebase.signInWithEmailAndPassword(firebase.auth, this.loginEmail, this.loginPassword);
         this.showSyncModal = false;
         this.clearLoginForm();
       } catch (error) {
@@ -88,7 +145,8 @@ function timerApp() {
     async registerWithEmail() {
       try {
         this.authError = '';
-        await firebase.auth().createUserWithEmailAndPassword(this.loginEmail, this.loginPassword);
+        const firebase = await loadFirebase();
+        await firebase.createUserWithEmailAndPassword(firebase.auth, this.loginEmail, this.loginPassword);
         this.showSyncModal = false;
         this.clearLoginForm();
       } catch (error) {
@@ -98,7 +156,8 @@ function timerApp() {
 
     async logout() {
       try {
-        await firebase.auth().signOut();
+        const firebase = await loadFirebase();
+        await firebase.signOut(firebase.auth);
         this.showSyncModal = false;
         // Clear any synced data and reload from localStorage
         this.loadTimers();
@@ -109,12 +168,13 @@ function timerApp() {
 
     async deleteAccount() {
       try {
-        const user = firebase.auth().currentUser;
+        const firebase = await loadFirebase();
+        const user = firebase.auth.currentUser;
         if (user) {
           // Delete user data from Firestore
-          await firebase.firestore().collection('userTimers').doc(user.uid).delete();
+          await firebase.deleteDoc(firebase.doc(firebase.db, 'userTimers', user.uid));
           // Delete the user account
-          await user.delete();
+          await firebase.deleteUser(user);
           this.showSyncModal = false;
           // Clear local timers and reload defaults
           this.timers = [];
@@ -159,9 +219,10 @@ function timerApp() {
 
       try {
         this.isSyncing = true;
-        const doc = await firebase.firestore().collection('userTimers').doc(this.user.uid).get();
-        if (doc.exists) {
-          const data = doc.data();
+        const firebase = await loadFirebase();
+        const snapshot = await firebase.getDoc(firebase.doc(firebase.db, 'userTimers', this.user.uid));
+        if (snapshot.exists()) {
+          const data = snapshot.data();
           if (data.timers && data.timestamp) {
             console.log("Loading data from Firebase (source of truth)");
             this.timers = data.timers;
@@ -221,7 +282,7 @@ function timerApp() {
       this.saveToLocalStorage();
       
       // If user is logged in, also save to Firestore (the source of truth)
-      if (this.user) {
+      if (this.user && this.firebaseReady) {
         await this.saveTimersToFirestore();
       }
       
@@ -232,10 +293,11 @@ function timerApp() {
       if (!this.user) return;
 
       try {
-        await firebase.firestore().collection('userTimers').doc(this.user.uid).set({
+        const firebase = await loadFirebase();
+        await firebase.setDoc(firebase.doc(firebase.db, 'userTimers', this.user.uid), {
           timers: this.timers,
           timestamp: this.lastSyncTimestamp,
-          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          lastUpdated: firebase.serverTimestamp()
         });
       } catch (error) {
         console.error('Error saving timers to Firestore:', error);
@@ -383,10 +445,14 @@ function timerApp() {
     },
 
     startTimerUpdates() {
-      // Update timers every second
+      // Drive display updates and countdown completion from one timer loop.
       setInterval(() => {
         const now = Date.now();
         let needsSave = false;
+
+        if (this.timers.some((timer) => timer.isRunning)) {
+          this.ticker++;
+        }
 
         this.timers.forEach((timer) => {
           if (timer.isRunning) {
@@ -410,9 +476,8 @@ function timerApp() {
           this.saveTimers();
         }
         
-        // Update title every second
         this.updateTitle();
-      }, 1000);
+      }, 500);
     },
 
     formatTime(timer) {
