@@ -510,9 +510,58 @@
 /* ─── Timer card ─── */
 .timer-card {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 220ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease;
+  transition: box-shadow 220ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, opacity 160ms ease, filter 160ms ease;
   transform-origin: center;
   border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.timer-card-drag-placeholder {
+  opacity: 0.16;
+  filter: saturate(0.55);
+  transform: scale(0.985);
+  box-shadow: none;
+}
+
+.timer-drag-preview {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 100;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.timer-drag-preview > .timer-card {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  transition: box-shadow 180ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.timer-drag-preview.is-lifted > .timer-card {
+  transform: rotate(1.2deg) scale(1.035);
+  box-shadow: 0 26px 65px rgba(15, 23, 42, 0.28), 0 8px 22px rgba(15, 23, 42, 0.16);
+}
+
+.timer-drag-preview.is-dropping {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.timer-drag-preview.is-dropping > .timer-card {
+  transform: rotate(0) scale(1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.is-reordering-timers {
+  cursor: grabbing;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timer-card,
+  .timer-drag-preview,
+  .timer-drag-preview > .timer-card {
+    transition-duration: 1ms !important;
+  }
 }
 
 @media (hover: hover) {
@@ -541,6 +590,38 @@
   justify-content: space-between;
   gap: 0.65rem;
   margin-bottom: 0.35rem;
+}
+
+.timer-drag-handle {
+  display: inline-flex;
+  flex: 0 0 2.25rem;
+  width: 2.25rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-left: -0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  color: rgba(30, 41, 59, 0.52);
+  cursor: grab;
+  touch-action: none;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.timer-drag-handle:hover,
+.timer-drag-handle:focus-visible {
+  background: rgba(255, 255, 255, 0.35);
+  color: var(--text-dark);
+}
+
+.timer-drag-handle:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+.timer-drag-handle:active {
+  cursor: grabbing;
+  transform: scale(0.96);
 }
 
 .timer-title-group {
@@ -739,6 +820,16 @@
 .dark .timer-primary-action {
   border-color: rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.09);
+  color: var(--text-light);
+}
+
+.dark .timer-drag-handle {
+  color: rgba(241, 245, 249, 0.56);
+}
+
+.dark .timer-drag-handle:hover,
+.dark .timer-drag-handle:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-light);
 }
 

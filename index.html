@@ -369,10 +369,14 @@
         <!-- Timer cards -->
         <div
           class="grid grid-cols-1 md:grid-cols-2 items-start gap-5 mb-6 fade-in-up fade-in-up-delay-1"
+          @pointermove.window="updateTimerDrag($event)"
+          @pointerup.window="finishTimerDrag($event)"
+          @pointercancel.window="finishTimerDrag($event)"
         >
           <template x-for="(timer, index) in timers" :key="timer.id">
             <div
-              :class="`p-5 rounded-2xl relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')}`"
+              :class="`p-5 rounded-2xl relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')} ${draggingTimerId === timer.id ? 'timer-card-drag-placeholder' : ''}`"
+              :data-timer-id="timer.id"
               x-transition:enter="timer-transition-enter-active"
               x-transition:enter-start="timer-transition-enter-from"
               x-transition:leave="timer-transition-leave-active"
@@ -391,6 +395,19 @@
               <div class="relative z-10">
                 <!-- Timer Header -->
                 <div class="timer-card-header">
+                  <button
+                    type="button"
+                    class="timer-drag-handle"
+                    :aria-label="`Reorder ${timer.name || `Timer ${index + 1}`}. Drag, or use arrow keys.`"
+                    title="Drag to reorder · Arrow keys also work"
+                    @pointerdown="startTimerDrag($event, timer.id)"
+                    @keydown.arrow-left.prevent="moveTimer(timer.id, -1)"
+                    @keydown.arrow-up.prevent="moveTimer(timer.id, -1)"
+                    @keydown.arrow-right.prevent="moveTimer(timer.id, 1)"
+                    @keydown.arrow-down.prevent="moveTimer(timer.id, 1)"
+                  >
+                    <span class="material-icons md-20" aria-hidden="true">drag_indicator</span>
+                  </button>
                   <div class="timer-title-group">
                     <input
                       type="text"
@@ -539,6 +556,8 @@
             </div>
           </template>
         </div>
+
+        <p class="sr-only" aria-live="polite" aria-atomic="true" x-text="reorderAnnouncement"></p>
 
         <div x-show="timers.length === 0" x-cloak class="timer-empty-state fade-in-up fade-in-up-delay-1">
           <p>No timers yet</p>

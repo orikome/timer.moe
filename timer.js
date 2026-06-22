@@ -59,6 +59,14 @@ function timerApp() {
     ticker: 0,
     isDarkMode: false,
     expandedTimerId: null,
+    reorderAnnouncement: '',
+    draggingTimerId: null,
+    dragPointerId: null,
+    dragOrderChanged: false,
+    dragSlotCenters: [],
+    dragPreviewElement: null,
+    dragOffsetX: 0,
+    dragOffsetY: 0,
     showTimerPicker: false,
     pickerQuery: '',
     activePickerIndex: 0,
@@ -572,6 +580,241 @@ function timerApp() {
 
       this.timers.push(newTimer);
       this.saveTimers();
+    },
+
+    startTimerDrag(event, timerId) {
+      if (event.button !== 0) return;
+
+      const card = event.currentTarget.closest('[data-timer-id]');
+      if (!card) return;
+
+      event.preventDefault();
+      this.dragSlotCenters = this.captureTimerSlots();
+      this.draggingTimerId = timerId;
+      this.dragPointerId = event.pointerId;
+      this.dragOrderChanged = false;
+      this.createTimerDragPreview(card, event);
+      event.currentTarget.setPointerCapture?.(event.pointerId);
+      document.body.classList.add('is-reordering-timers');
+    },
+
+    createTimerDragPreview(card, event) {
+      const rect = card.getBoundingClientRect();
+      const shell = document.createElement('div');
+      const preview = card.cloneNode(true);
+
+      preview.removeAttribute('data-timer-id');
+      preview.classList.remove('timer-card-drag-placeholder');
+      [preview, ...preview.querySelectorAll('*')].forEach((element) => {
+        Array.from(element.attributes).forEach((attribute) => {
+          if (
+            attribute.name === 'id' ||
+            attribute.name.startsWith('x-') ||
+            attribute.name.startsWith('@') ||
+            attribute.name.startsWith(':')
+          ) {
+            element.removeAttribute(attribute.name);
+          }
+        });
+      });
+      preview.setAttribute('aria-hidden', 'true');
+      preview.inert = true;
+
+      shell.className = 'timer-drag-preview';
+      shell.style.width = `${rect.width}px`;
+      shell.style.height = `${rect.height}px`;
+      shell.appendChild(preview);
+      document.body.appendChild(shell);
+
+      this.dragPreviewElement = shell;
+      this.dragOffsetX = event.clientX - rect.left;
+      this.dragOffsetY = event.clientY - rect.top;
+      this.positionTimerDragPreview(event.clientX, event.clientY);
+      requestAnimationFrame(() => shell.classList.add('is-lifted'));
+    },
+
+    positionTimerDragPreview(clientX, clientY) {
+      if (!this.dragPreviewElement) return;
+      const x = clientX - this.dragOffsetX;
+      const y = clientY - this.dragOffsetY;
+      this.dragPreviewElement.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    },
+
+    captureTimerSlots() {
+      return Array.from(document.querySelectorAll('[data-timer-id]')).map((card) => {
+        const rect = card.getBoundingClientRect();
+        return {
+          x: rect.left + window.scrollX + (rect.width / 2),
+          y: rect.top + window.scrollY + (rect.height / 2),
+        };
+      });
+    },
+
+    updateTimerDrag(event) {
+      if (
+        !this.draggingTimerId ||
+        event.pointerId !== this.dragPointerId
+      ) return;
+
+      event.preventDefault();
+      this.positionTimerDragPreview(event.clientX, event.clientY);
+      const scrollMargin = 72;
+      if (event.clientY < scrollMargin) {
+        window.scrollBy(0, -12);
+      } else if (event.clientY > window.innerHeight - scrollMargin) {
+        window.scrollBy(0, 12);
+      }
+
+      const oldIndex = this.timers.findIndex(
+        (timer) => timer.id === this.draggingTimerId,
+      );
+      if (oldIndex < 0 || !this.dragSlotCenters.length) return;
+
+      const pointerX = event.clientX + window.scrollX;
+      const pointerY = event.clientY + window.scrollY;
+      let newIndex = oldIndex;
+      let nearestDistance = Infinity;
+
+      this.dragSlotCenters.forEach((slot, index) => {
+        const distance = Math.hypot(pointerX - slot.x, pointerY - slot.y);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          newIndex = index;
+        }
+      });
+
+      if (newIndex === oldIndex) return;
+
+      const currentSlot = this.dragSlotCenters[oldIndex];
+      const currentDistance = Math.hypot(
+        pointerX - currentSlot.x,
+        pointerY - currentSlot.y,
+      );
+
+      // The new slot must be meaningfully closer than the current one. This
+      // creates a stable dead band on both sides of every midpoint.
+      if (currentDistance - nearestDistance < 72) return;
+
+      const previousPositions = this.captureTimerPositions();
+
+      const [movedTimer] = this.timers.splice(oldIndex, 1);
+      this.timers.splice(newIndex, 0, movedTimer);
+      this.dragOrderChanged = true;
+      this.animateTimerReflow(previousPositions);
+    },
+
+    captureTimerPositions() {
+      return new Map(
+        Array.from(document.querySelectorAll('[data-timer-id]')).map((card) => [
+          card.dataset.timerId,
+          card.getBoundingClientRect(),
+        ]),
+      );
+    },
+
+    animateTimerReflow(previousPositions) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          document.querySelectorAll('[data-timer-id]').forEach((card) => {
+            if (card.dataset.timerId === this.draggingTimerId) return;
+            const previousRect = previousPositions.get(card.dataset.timerId);
+            if (!previousRect) return;
+
+            const nextRect = card.getBoundingClientRect();
+            const deltaX = previousRect.left - nextRect.left;
+            const deltaY = previousRect.top - nextRect.top;
+            if (!deltaX && !deltaY) return;
+
+            card.animate?.(
+              [
+                { transform: `translate3d(${deltaX}px, ${deltaY}px, 0)` },
+                { transform: 'translate3d(0, 0, 0)' },
+              ],
+              {
+                duration: 220,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              },
+            );
+          });
+        });
+      });
+    },
+
+    finishTimerDrag(event) {
+      if (
+        !this.draggingTimerId ||
+        (event && event.pointerId !== this.dragPointerId)
+      ) return;
+
+      const movedTimer = this.timers.find(
+        (timer) => timer.id === this.draggingTimerId,
+      );
+      const newIndex = this.timers.findIndex(
+        (timer) => timer.id === this.draggingTimerId,
+      );
+
+      if (this.dragOrderChanged && movedTimer) {
+        this.announceTimerOrder(movedTimer, newIndex);
+        this.saveTimers();
+      }
+
+      const draggedTimerId = this.draggingTimerId;
+      this.draggingTimerId = null;
+      this.dragPointerId = null;
+      this.dragOrderChanged = false;
+      this.dragSlotCenters = [];
+      document.body.classList.remove('is-reordering-timers');
+      this.$nextTick(() => this.dropTimerDragPreview(draggedTimerId));
+    },
+
+    dropTimerDragPreview(timerId) {
+      const preview = this.dragPreviewElement;
+      const destination = Array.from(
+        document.querySelectorAll('[data-timer-id]'),
+      ).find(
+        (card) => card.dataset.timerId === timerId,
+      );
+
+      if (!preview) return;
+      if (!destination) {
+        preview.remove();
+        this.dragPreviewElement = null;
+        return;
+      }
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        preview.remove();
+        this.dragPreviewElement = null;
+        return;
+      }
+
+      const rect = destination.getBoundingClientRect();
+      preview.classList.remove('is-lifted');
+      preview.classList.add('is-dropping');
+      preview.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0)`;
+      setTimeout(() => preview.remove(), 190);
+      this.dragPreviewElement = null;
+    },
+
+    moveTimer(timerId, direction) {
+      const oldIndex = this.timers.findIndex((timer) => timer.id === timerId);
+      const newIndex = Math.min(
+        this.timers.length - 1,
+        Math.max(0, oldIndex + direction),
+      );
+
+      if (oldIndex < 0 || oldIndex === newIndex) return;
+
+      const [movedTimer] = this.timers.splice(oldIndex, 1);
+      this.timers.splice(newIndex, 0, movedTimer);
+      this.announceTimerOrder(movedTimer, newIndex);
+      this.saveTimers();
+    },
+
+    announceTimerOrder(timer, index) {
+      this.reorderAnnouncement = `${timer.name || 'Timer'} moved to position ${index + 1} of ${this.timers.length}.`;
     },
 
     removeTimer(index) {
