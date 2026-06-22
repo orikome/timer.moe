@@ -329,12 +329,23 @@
           <button
             type="button"
             @click="openTimerPicker()"
+            @mouseenter="pauseQuickExampleRotation()"
+            @mouseleave="startQuickExampleRotation()"
+            @focus="pauseQuickExampleRotation()"
+            @blur="startQuickExampleRotation()"
             class="nav-quick-add"
-            aria-label="Create a timer. Try Tea 4 minutes. No duration creates a stopwatch."
+            aria-label="Create a timer by typing a title and optional duration. No duration creates a stopwatch."
           >
             <span class="material-icons md-20 nav-quick-add-icon" aria-hidden="true">keyboard</span>
             <span class="nav-quick-add-label">
-              <span class="nav-quick-add-primary">Create a timer: try “Tea 4m”</span>
+              <span class="nav-quick-add-primary">
+                Create a timer: try
+                <span
+                  class="nav-quick-add-example"
+                  :class="{'is-changing': isQuickExampleChanging}"
+                  x-text="`“${quickExamples[quickExampleIndex]}”`"
+                >“Tea 4m”</span>
+              </span>
               <span class="nav-quick-add-hint">No duration = stopwatch</span>
             </span>
             <kbd>/</kbd>

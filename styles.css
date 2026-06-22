@@ -208,6 +208,16 @@
   font-weight: 550;
 }
 
+.nav-quick-add-example {
+  display: inline-block;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.nav-quick-add-example.is-changing {
+  opacity: 0.25;
+  transform: translateY(0.15rem);
+}
+
 .nav-quick-add-hint {
   color: #94a3b8;
   font-size: 0.68rem;
@@ -272,6 +282,16 @@
 
 .dark .nav-quick-add-hint {
   color: #64748b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-quick-add-example {
+    transition: none;
+  }
+
+  .nav-quick-add-example.is-changing {
+    transform: none;
+  }
 }
 
 .dark .nav-quick-add kbd,

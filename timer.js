@@ -71,6 +71,11 @@ function timerApp() {
     pickerQuery: '',
     activePickerIndex: 0,
     pickerReturnFocus: null,
+    quickExamples: ['Tea 4m', 'Focus session 25m', 'Read 1h 30m', 'Workout'],
+    quickExampleIndex: 0,
+    quickExampleInterval: null,
+    quickExampleSwapTimeout: null,
+    isQuickExampleChanging: false,
     
     // Firebase auth state
     user: null,
@@ -93,6 +98,7 @@ function timerApp() {
       this.loadTimers();
       this.loadThemePreference();
       this.startTimerUpdates();
+      this.startQuickExampleRotation();
       
       // Only load Firebase automatically for returning signed-in users.
       if (wasLoggedIn) {
@@ -108,6 +114,26 @@ function timerApp() {
       document.addEventListener('keydown', (event) => {
         this.handleGlobalTyping(event);
       });
+    },
+
+    startQuickExampleRotation() {
+      if (
+        this.quickExampleInterval ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ) return;
+
+      this.quickExampleInterval = window.setInterval(() => {
+        this.isQuickExampleChanging = true;
+        this.quickExampleSwapTimeout = window.setTimeout(() => {
+          this.quickExampleIndex = (this.quickExampleIndex + 1) % this.quickExamples.length;
+          this.isQuickExampleChanging = false;
+        }, 150);
+      }, 3600);
+    },
+
+    pauseQuickExampleRotation() {
+      window.clearInterval(this.quickExampleInterval);
+      this.quickExampleInterval = null;
     },
 
     async initFirebaseAuth() {
