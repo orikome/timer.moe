@@ -222,8 +222,8 @@
     <link rel="icon" type="image/svg+xml" href="timer-moe-logo.svg" />
     <link rel="apple-touch-icon" href="timer-moe-logo.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e0e7ff" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eaf5ff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b1228" />
 
     <style>
       body {
@@ -336,7 +336,7 @@
             class="nav-quick-add"
             aria-label="Create a timer by typing a title and optional duration. No duration creates a stopwatch."
           >
-            <span class="material-icons md-20 nav-quick-add-icon" aria-hidden="true">keyboard</span>
+            <span class="material-icons md-20 nav-quick-add-icon" aria-hidden="true">add_circle_outline</span>
             <span class="nav-quick-add-label">
               <span class="nav-quick-add-primary">
                 Create a timer: try
@@ -586,18 +586,18 @@
         class="timer-picker-layer"
         @keydown.escape.window="closeTimerPicker()"
       >
-        <div class="timer-picker-backdrop" @click="closeTimerPicker()"></div>
+        <div class="glass-dialog-backdrop timer-picker-backdrop" @click="closeTimerPicker()"></div>
         <div
-          class="timer-picker"
+          class="glass-dialog timer-picker"
           role="dialog"
           aria-modal="true"
           aria-label="Add a timer"
-          x-transition:enter="timer-picker-enter"
-          x-transition:enter-start="timer-picker-enter-start"
-          x-transition:leave="timer-picker-leave"
-          x-transition:leave-end="timer-picker-leave-end"
+          x-transition:enter="glass-dialog-enter"
+          x-transition:enter-start="glass-dialog-enter-start"
+          x-transition:leave="glass-dialog-leave"
+          x-transition:leave-end="glass-dialog-leave-end"
         >
-          <div class="timer-picker-search">
+          <div class="glass-dialog-header timer-picker-search">
             <span class="material-icons" aria-hidden="true">search</span>
             <label for="timer-search" class="sr-only">Search timer presets or create a custom timer</label>
             <input
@@ -612,7 +612,14 @@
               placeholder="Search presets or type “Tea 4m”"
               autocomplete="off"
             />
-            <kbd>esc</kbd>
+            <button
+              type="button"
+              class="glass-dialog-close"
+              @click="closeTimerPicker()"
+              aria-label="Close quick add"
+            >
+              <span class="material-icons md-18" aria-hidden="true">close</span>
+            </button>
           </div>
 
           <div class="timer-picker-results" role="listbox" aria-label="Timer suggestions">
@@ -653,7 +660,7 @@
         <!-- Backdrop -->
         <div
           @click="showSyncModal = false"
-          class="absolute inset-0 bg-black/15 dark:bg-black/30 backdrop-blur-sm"
+          class="glass-dialog-backdrop sync-modal-backdrop absolute inset-0 bg-black/15 dark:bg-black/30 backdrop-blur-sm"
           x-transition:enter="backdrop-transition-enter"
           x-transition:enter-start="backdrop-transition-enter-start"
           x-transition:leave="backdrop-transition-leave"
@@ -662,37 +669,44 @@
 
         <!-- Modal Content -->
         <div
-          class="relative max-w-md w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/40 dark:border-white/10"
-          x-transition:enter="transition ease-out duration-300"
-          x-transition:enter-start="opacity-0 transform scale-95"
-          x-transition:enter-end="opacity-100 transform scale-100"
-          x-transition:leave="transition ease-in duration-200"
-          x-transition:leave-start="opacity-100 transform scale-100"
-          x-transition:leave-end="opacity-0 transform scale-95"
+          class="glass-dialog sync-glass-modal relative max-w-md w-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/40 dark:border-white/10"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="sync-dialog-title"
+          x-transition:enter="glass-dialog-enter"
+          x-transition:enter-start="glass-dialog-enter-start"
+          x-transition:leave="glass-dialog-leave"
+          x-transition:leave-end="glass-dialog-leave-end"
         >
-          <!-- Close button -->
-          <button
-            @click="showSyncModal = false"
-            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100/80 hover:bg-gray-200 dark:bg-gray-700/60 dark:hover:bg-gray-600 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 transition-all"
-            aria-label="Close sync modal"
-          >
-            <span class="material-icons md-18">close</span>
-          </button>
+          <div class="glass-dialog-header sync-dialog-header">
+            <span
+              class="material-icons"
+              aria-hidden="true"
+              x-text="user ? 'cloud_done' : 'cloud_sync'"
+            >cloud_sync</span>
+            <h2
+              id="sync-dialog-title"
+              class="text-base font-semibold text-slate-700 dark:text-gray-200"
+              x-text="user ? 'Account' : (registerMode ? 'Create Account' : 'Sign In')"
+            >Sign In</h2>
+            <button
+              type="button"
+              @click="showSyncModal = false"
+              class="glass-dialog-close"
+              aria-label="Close sync modal"
+            >
+              <span class="material-icons md-18" aria-hidden="true">close</span>
+            </button>
+          </div>
 
           <!-- Sync content -->
-          <div class="text-center">
+          <div class="sync-dialog-body text-center">
             <!-- User is logged in -->
             <template x-if="user">
               <div>
-                <h2
-                  class="text-xl font-semibold text-slate-700 dark:text-gray-200 mb-4"
-                >
-                  Account
-                </h2>
-
                 <div class="space-y-4 text-slate-600 dark:text-gray-300">
                   <div
-                    class="flex items-center justify-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl"
+                    class="sync-status-panel flex items-center justify-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-xl"
                   >
                     <span
                       class="material-icons text-green-600 dark:text-green-400"
@@ -703,7 +717,7 @@
                     >
                   </div>
 
-                  <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                  <div class="sync-account-panel p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
                     <p
                       class="text-sm font-medium text-slate-800 dark:text-gray-100"
                     >
@@ -746,14 +760,6 @@
             <!-- User is not logged in -->
             <template x-if="!user">
               <div>
-                <h2
-                  class="text-xl font-semibold text-slate-700 dark:text-gray-200 mb-4"
-                >
-                  <span
-                    x-text="registerMode ? 'Create Account' : 'Sign In'"
-                  ></span>
-                </h2>
-
                 <!-- Show auth errors -->
                 <div
                   x-show="authError"
@@ -801,7 +807,7 @@
                       ></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                      <span class="px-2 bg-white dark:bg-gray-800 text-gray-500"
+                      <span class="sync-divider-label px-2 bg-white dark:bg-gray-800 text-gray-500"
                         >or</span
                       >
                     </div>
@@ -817,14 +823,14 @@
                       x-model="loginEmail"
                       placeholder="Email"
                       required
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                      class="sync-auth-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
                     />
                     <input
                       type="password"
                       x-model="loginPassword"
                       placeholder="Password"
                       required
-                      class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                      class="sync-auth-input w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-100"
                     />
                     <button
                       type="submit"
