@@ -336,17 +336,13 @@
             class="nav-quick-add"
             aria-label="Create a timer by typing a title and optional duration. No duration creates a stopwatch."
           >
-            <span class="material-icons md-20 nav-quick-add-icon" aria-hidden="true">add_circle_outline</span>
-            <span class="nav-quick-add-label">
-              <span class="nav-quick-add-primary">
-                Create a timer: try
-                <span
-                  class="nav-quick-add-example"
-                  :class="{'is-changing': isQuickExampleChanging}"
-                  x-text="`“${quickExamples[quickExampleIndex]}”`"
-                >“Tea 4m”</span>
-              </span>
-              <span class="nav-quick-add-hint">No duration = stopwatch</span>
+            <span class="material-icons md-20 nav-quick-add-icon" aria-hidden="true">search</span>
+            <span class="nav-quick-add-primary">
+              <span class="nav-quick-add-lead">Create a timer</span><span
+                class="nav-quick-add-example"
+                :class="{'is-changing': isQuickExampleChanging}"
+                x-text="quickExamples[quickExampleIndex]"
+              >Tea 4m</span><span class="nav-quick-add-caret" aria-hidden="true"></span>
             </span>
             <kbd>/</kbd>
           </button>
