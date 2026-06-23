@@ -854,8 +854,11 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520' viewBox='0 0 520 520'%3E%3Cg fill='none' stroke='%238b7bc8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='.18'%3E%3Cpath d='M110 150 C70 118 78 78 110 100 C142 78 150 118 110 150 Z'/%3E%3Cpath d='M400 64 L406 84 L426 90 L406 96 L400 116 L394 96 L374 90 L394 84 Z'/%3E%3Ccircle cx='250' cy='258' r='20'/%3E%3Cpath d='M410 422 C382 400 388 372 410 388 C432 372 438 400 410 422 Z'/%3E%3Cpath d='M120 392 L125 407 L140 412 L125 417 L120 432 L115 417 L100 412 L115 407 Z'/%3E%3Ccircle cx='470' cy='198' r='12'/%3E%3C/g%3E%3Cg fill='%238b7bc8' opacity='.12'%3E%3Ccircle cx='300' cy='72' r='4'/%3E%3Ccircle cx='178' cy='300' r='3'/%3E%3Ccircle cx='462' cy='460' r='4'/%3E%3Ccircle cx='58' cy='240' r='3'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 480px 480px;
+  opacity: 0.9;
+  /* Pastel mix — soft filled hearts (it's a .moe site!) among sparkles + tiny twinkles,
+     so they glow like confetti behind the glass rather than reading as clip-art. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Cg opacity='.55'%3E%3Cpath fill='%23ff9ecb' transform='translate(90 110) scale(1.4)' d='M0,3 C-3,-3 -10,-3 -10,3 C-10,8 -4,11 0,14 C4,11 10,8 10,3 C10,-3 3,-3 0,3 Z'/%3E%3Cpath fill='%238fd3ff' transform='translate(480 90)' d='M0,-12 C2,-4 4,-2 12,0 C4,2 2,4 0,12 C-2,4 -4,2 -12,0 C-4,-2 -2,-4 0,-12 Z'/%3E%3Cpath fill='%23ffd47a' transform='translate(300 300) scale(.7)' d='M0,-12 C2,-4 4,-2 12,0 C4,2 2,4 0,12 C-2,4 -4,2 -12,0 C-4,-2 -2,-4 0,-12 Z'/%3E%3Cpath fill='%23b69bff' transform='translate(160 440) scale(1.1)' d='M0,3 C-3,-3 -10,-3 -10,3 C-10,8 -4,11 0,14 C4,11 10,8 10,3 C10,-3 3,-3 0,3 Z'/%3E%3Cpath fill='%23ff9ecb' transform='translate(525 470) scale(.8)' d='M0,-12 C2,-4 4,-2 12,0 C4,2 2,4 0,12 C-2,4 -4,2 -12,0 C-4,-2 -2,-4 0,-12 Z'/%3E%3Cpath fill='%23ffb1d8' transform='translate(380 505) scale(.65)' d='M0,3 C-3,-3 -10,-3 -10,3 C-10,8 -4,11 0,14 C4,11 10,8 10,3 C10,-3 3,-3 0,3 Z'/%3E%3C/g%3E%3Cg opacity='.42'%3E%3Ccircle fill='%23ffd47a' cx='250' cy='70' r='3'/%3E%3Ccircle fill='%23ff9ecb' cx='430' cy='250' r='2.5'/%3E%3Ccircle fill='%23b69bff' cx='60' cy='300' r='2.5'/%3E%3Ccircle fill='%238fd3ff' cx='560' cy='180' r='2'/%3E%3Ccircle fill='%23ff9ecb' cx='210' cy='545' r='2'/%3E%3Ccircle fill='%23b69bff' cx='350' cy='395' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 600px 600px;
 }
 
 /* Fine film grain — dissolves gradient banding and adds a tactile, premium finish */
@@ -923,7 +926,8 @@
 }
 
 .dark .app-background::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520' viewBox='0 0 520 520'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' opacity='.09'%3E%3Cpath d='M110 150 C70 118 78 78 110 100 C142 78 150 118 110 150 Z'/%3E%3Cpath d='M400 64 L406 84 L426 90 L406 96 L400 116 L394 96 L374 90 L394 84 Z'/%3E%3Ccircle cx='250' cy='258' r='20'/%3E%3Cpath d='M410 422 C382 400 388 372 410 388 C432 372 438 400 410 422 Z'/%3E%3Cpath d='M120 392 L125 407 L140 412 L125 417 L120 432 L115 417 L100 412 L115 407 Z'/%3E%3Ccircle cx='470' cy='198' r='12'/%3E%3C/g%3E%3Cg fill='%23ffffff' opacity='.06'%3E%3Ccircle cx='300' cy='72' r='4'/%3E%3Ccircle cx='178' cy='300' r='3'/%3E%3Ccircle cx='462' cy='460' r='4'/%3E%3Ccircle cx='58' cy='240' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  /* Same pastel stardust, dimmed so it twinkles softly against the dark canvas. */
+  opacity: 0.55;
 }
 
 /* ─── Dark mode overrides ─── */
