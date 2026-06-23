@@ -385,7 +385,7 @@
         >
           <template x-for="(timer, index) in timers" :key="timer.id">
             <div
-              :class="`p-5 rounded-2xl relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')} ${draggingTimerId === timer.id ? 'timer-card-drag-placeholder' : ''}`"
+              :class="`p-5 rounded-2xl relative overflow-hidden timer-card ${getColorClass(timer.color, 'bg')} ${draggingTimerId === timer.id ? 'timer-card-drag-placeholder' : ''} ${isTimerComplete(timer) ? 'is-complete' : ''}`"
               :data-timer-id="timer.id"
               x-transition:enter="timer-transition-enter-active"
               x-transition:enter-start="timer-transition-enter-from"
@@ -429,7 +429,8 @@
                     />
                     <span
                       class="timer-mode-label"
-                      x-text="timer.mode === 'countdown' ? `${formatDuration(timer.duration)} countdown` : 'Stopwatch'"
+                      :class="{'is-complete': isTimerComplete(timer)}"
+                      x-text="isTimerComplete(timer) ? 'Done ✨' : (timer.mode === 'countdown' ? `${formatDuration(timer.duration)} countdown` : 'Stopwatch')"
                     ></span>
                   </div>
                   <button
@@ -444,12 +445,14 @@
                   </button>
                 </div>
 
-                <!-- Timer Display -->
+                <!-- Timer Display — tap to start/pause -->
                 <div class="text-center py-4">
                   <div
                     class="text-5xl font-mono font-semibold timer-display text-slate-800 dark:text-gray-100"
+                    @click="toggleTimer(timer)"
                     x-text="formatTime(timer)"
                     role="timer"
+                    :title="`${timer.isRunning ? 'Pause' : 'Start'} (tap)`"
                     :aria-label="`${timer.name || `Timer ${index + 1}`}: ${formatTime(timer)}`"
                   ></div>
                 </div>
@@ -460,15 +463,16 @@
                     type="button"
                     @click="toggleTimer(timer)"
                     class="timer-primary-action"
-                    :aria-label="`${timer.isRunning ? 'Pause' : 'Start'} ${timer.name || `Timer ${index + 1}`}`"
+                    :class="{'is-complete': isTimerComplete(timer)}"
+                    :aria-label="`${isTimerComplete(timer) ? 'Restart' : (timer.isRunning ? 'Pause' : 'Start')} ${timer.name || `Timer ${index + 1}`}`"
                   >
                     <span
                       class="material-icons"
                       aria-hidden="true"
-                      x-text="timer.isRunning ? 'pause_circle' : 'play_circle'"
+                      x-text="isTimerComplete(timer) ? 'restart_alt' : (timer.isRunning ? 'pause_circle' : 'play_circle')"
                     ></span>
                     <span
-                      x-text="timer.isRunning ? 'Pause' : 'Start'"
+                      x-text="isTimerComplete(timer) ? 'Restart' : (timer.isRunning ? 'Pause' : 'Start')"
                     ></span>
                   </button>
                 </div>

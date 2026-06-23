@@ -851,6 +851,14 @@ function timerApp() {
       this.saveTimers();
     },
 
+    isTimerComplete(timer) {
+      return (
+        timer.mode === "countdown" &&
+        !timer.isRunning &&
+        timer.elapsed >= timer.duration * 60 * 1000
+      );
+    },
+
     toggleTimerSettings(timer) {
       this.expandedTimerId = this.expandedTimerId === timer.id ? null : timer.id;
     },
