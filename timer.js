@@ -47,7 +47,7 @@ async function loadFirebase() {
 function timerApp() {
   return {
     timers: [],
-    colors: ['blue', 'green', 'purple', 'pink', 'yellow', 'orange', 'red', 'teal', 'indigo', 'lime'],
+    colors: ['blue', 'green', 'purple', 'pink', 'yellow', 'orange', 'red', 'teal', 'indigo', 'lime', 'cyan', 'sky', 'violet', 'fuchsia', 'rose', 'slate'],
     timerPresets: [
       { id: 'pomodoro', name: 'Pomodoro', description: '25 minute focus', mode: 'countdown', duration: 25, color: 'red', keywords: 'focus work study productivity 25m' },
       { id: 'short-break', name: 'Break', description: '5 minute reset', mode: 'countdown', duration: 5, color: 'green', keywords: 'short rest pause coffee 5m' },
