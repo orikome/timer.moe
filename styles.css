@@ -917,10 +917,18 @@
   background-size: 160px 160px;
 }
 
-.app-background > [x-data],
 .app-background > section {
   position: relative;
   z-index: 1;
+}
+
+/* Keep the app wrapper above the static SEO section so the fixed overlays it
+   contains (timer picker, sync modal) paint over the footer text and buttons
+   instead of having them bleed through — both contexts otherwise tie at z-index 1
+   and the later section in the DOM would win. */
+.app-background > [x-data] {
+  position: relative;
+  z-index: 2;
 }
 
 /* Mobile scroll performance: backdrop-filter blur cost scales with radius, and
